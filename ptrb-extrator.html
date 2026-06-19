@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Extrator PTR-B · Inovatus</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
+
+  :root {
+    --navy: #1C2B3A;
+    --navy-mid: #263849;
+    --navy-light: #334D63;
+    --amber: #E8A020;
+    --amber-dim: #C47E10;
+    --amber-glow: rgba(232,160,32,0.12);
+    --cream: #F5F0E8;
+    --cream-dim: #E8E2D8;
+    --text: #F0EDE8;
+    --text-muted: #8FA3B3;
+    --green: #3DB87A;
+    --red: #E05555;
+    --border: rgba(255,255,255,0.08);
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--navy);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 18px 40px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(28,43,58,0.95);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(8px);
+  }
+  .logo-mark {
+    width: 32px; height: 32px;
+    background: var(--amber);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    flex-shrink: 0;
+  }
+  .logo-text { font-family: var(--mono); font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: var(--text-muted); }
+  .logo-text strong { color: var(--text); }
+  header .spacer { flex: 1; }
+  .header-tag {
+    font-family: var(--mono); font-size: 11px; color: var(--amber);
+    background: var(--amber-glow); border: 1px solid rgba(232,160,32,0.25);
+    padding: 3px 10px; border-radius: 3px; letter-spacing: 0.06em;
+  }
+
+  /* ── MAIN ── */
+  main { max-width: 900px; margin: 0 auto; padding: 60px 40px 100px; }
+
+  /* ── DROP ZONE ── */
+  .drop-section { text-align: center; padding: 20px 0 60px; }
+  .drop-eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: 0.15em;
+    color: var(--amber); text-transform: uppercase; margin-bottom: 20px;
+  }
+  .drop-title {
+    font-size: 28px; font-weight: 700; color: var(--text);
+    line-height: 1.3; margin-bottom: 10px;
+  }
+  .drop-sub { font-size: 15px; color: var(--text-muted); margin-bottom: 40px; }
+
+  .drop-zone {
+    border: 2px dashed var(--navy-light);
+    border-radius: 12px;
+    padding: 56px 40px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+    background: var(--navy-mid);
+  }
+  .drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--amber);
+    background: var(--amber-glow);
+  }
+  .drop-zone input[type=file] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+  .drop-icon {
+    width: 48px; height: 48px; margin: 0 auto 16px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .drop-icon svg { width: 48px; height: 48px; }
+  .drop-label { font-size: 15px; color: var(--text-muted); }
+  .drop-label strong { color: var(--amber); }
+  .drop-hint { font-family: var(--mono); font-size: 11px; color: var(--text-muted); margin-top: 8px; opacity: 0.6; }
+
+  /* ── PROCESSING ── */
+  #status-bar {
+    display: none;
+    align-items: center; gap: 12px;
+    padding: 14px 20px; border-radius: 8px;
+    background: var(--navy-mid); border: 1px solid var(--border);
+    margin-bottom: 32px; font-family: var(--mono); font-size: 13px;
+  }
+  .spinner {
+    width: 18px; height: 18px; border: 2px solid var(--navy-light);
+    border-top-color: var(--amber); border-radius: 50%;
+    animation: spin 0.8s linear infinite; flex-shrink: 0;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ── RESULTS ── */
+  #results { display: none; }
+
+  .project-badge {
+    background: var(--amber-glow); border: 1px solid rgba(232,160,32,0.3);
+    border-radius: 10px; padding: 24px 28px; margin-bottom: 32px;
+  }
+  .project-badge .pb-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
+    color: var(--amber); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .project-badge .pb-title { font-size: 18px; font-weight: 700; line-height: 1.4; margin-bottom: 12px; }
+  .pb-meta { display: flex; gap: 24px; flex-wrap: wrap; }
+  .pb-meta-item { display: flex; flex-direction: column; gap: 2px; }
+  .pb-meta-item .mk { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.08em; }
+  .pb-meta-item .mv { font-size: 14px; font-weight: 600; }
+
+  /* download buttons */
+  .dl-row { display: flex; gap: 12px; margin-bottom: 40px; flex-wrap: wrap; }
+  .dl-btn {
+    display: flex; align-items: center; gap: 10px;
+    padding: 14px 24px; border-radius: 8px; cursor: pointer;
+    font-family: var(--mono); font-size: 13px; font-weight: 600;
+    border: none; transition: all 0.15s; text-decoration: none;
+    letter-spacing: 0.04em;
+  }
+  .dl-btn-md { background: var(--amber); color: var(--navy); }
+  .dl-btn-md:hover { background: #f0b030; transform: translateY(-1px); }
+  .dl-btn-html { background: var(--navy-mid); color: var(--text); border: 1px solid var(--border); }
+  .dl-btn-html:hover { border-color: var(--amber); background: var(--amber-glow); }
+  .dl-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  /* preview tabs */
+  .preview-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+  .tab-btn {
+    padding: 10px 20px; background: none; border: none; cursor: pointer;
+    font-family: var(--mono); font-size: 12px; color: var(--text-muted);
+    border-bottom: 2px solid transparent; margin-bottom: -1px;
+    transition: color 0.15s, border-color 0.15s; letter-spacing: 0.04em;
+  }
+  .tab-btn.active { color: var(--amber); border-bottom-color: var(--amber); }
+  .tab-btn:hover:not(.active) { color: var(--text); }
+
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* MD preview */
+  #md-preview {
+    background: var(--navy-mid); border: 1px solid var(--border);
+    border-radius: 8px; padding: 28px; overflow-x: auto;
+    font-family: var(--mono); font-size: 12px; line-height: 1.8;
+    color: #c8d6e0; white-space: pre-wrap; max-height: 600px; overflow-y: auto;
+  }
+  #md-preview::-webkit-scrollbar { width: 6px; }
+  #md-preview::-webkit-scrollbar-track { background: var(--navy); }
+  #md-preview::-webkit-scrollbar-thumb { background: var(--navy-light); border-radius: 3px; }
+
+  /* HTML preview iframe */
+  #html-frame {
+    width: 100%; height: 600px; border: 1px solid var(--border);
+    border-radius: 8px; background: white;
+  }
+
+  /* reset button */
+  .reset-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: none; border: 1px solid var(--border); color: var(--text-muted);
+    padding: 8px 16px; border-radius: 6px; cursor: pointer;
+    font-family: var(--mono); font-size: 11px; margin-bottom: 32px;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .reset-btn:hover { border-color: var(--amber); color: var(--text); }
+
+  /* error */
+  .error-box {
+    display: none; background: rgba(224,85,85,0.1); border: 1px solid rgba(224,85,85,0.3);
+    border-radius: 8px; padding: 16px 20px; color: #f08080;
+    font-family: var(--mono); font-size: 13px; margin-bottom: 24px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark"></div>
+  <div class="logo-text"><strong>INOVATUS</strong> · Extrator PTR-B</div>
+  <div class="spacer"></div>
+  <div class="header-tag">ANP R&amp;D</div>
+</header>
+
+<main>
+
+  <!-- DROP ZONE -->
+  <div class="drop-section" id="drop-section">
+    <div class="drop-eyebrow">Ferramenta de extração</div>
+    <h1 class="drop-title">PTR-B → Documento IA-Ready</h1>
+    <p class="drop-sub">Carregue qualquer PTR-B em formato .xlsx para extrair as informações do projeto<br>em Markdown estruturado e visualização HTML.</p>
+
+    <div class="drop-zone" id="drop-zone">
+      <input type="file" id="file-input" accept=".xlsx,.xlsm">
+      <div class="drop-icon">
+        <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="8" y="4" width="28" height="36" rx="3" fill="#263849" stroke="#E8A020" stroke-width="1.5"/>
+          <rect x="13" y="14" width="18" height="2" rx="1" fill="#334D63"/>
+          <rect x="13" y="20" width="14" height="2" rx="1" fill="#334D63"/>
+          <rect x="13" y="26" width="10" height="2" rx="1" fill="#334D63"/>
+          <circle cx="36" cy="36" r="10" fill="#1C2B3A" stroke="#E8A020" stroke-width="1.5"/>
+          <path d="M36 31v10M31 36h10" stroke="#E8A020" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="drop-label">Arraste o arquivo aqui ou <strong>clique para selecionar</strong></div>
+      <div class="drop-hint">Compatível com PTR-B Versão 6 · apenas .xlsx</div>
+    </div>
+  </div>
+
+  <!-- STATUS -->
+  <div id="status-bar">
+    <div class="spinner"></div>
+    <span id="status-msg">Processando...</span>
+  </div>
+
+  <!-- ERROR -->
+  <div class="error-box" id="error-box"></div>
+
+  <!-- RESULTS -->
+  <div id="results">
+    <button class="reset-btn" id="reset-btn">
+      <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>
+      Carregar outro arquivo
+    </button>
+
+    <div class="project-badge" id="project-badge">
+      <div class="pb-label">Projeto extraído</div>
+      <div class="pb-title" id="pb-title">—</div>
+      <div class="pb-meta" id="pb-meta"></div>
+    </div>
+
+    <div class="dl-row">
+      <a class="dl-btn dl-btn-md" id="dl-md" href="#" download="projeto_contexto.md">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/></svg>
+        Baixar Markdown
+      </a>
+      <a class="dl-btn dl-btn-html" id="dl-html" href="#" download="projeto_resumo.html">
+        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/><path d="M8.646 6.646a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L10.293 9 8.646 7.354a.5.5 0 0 1 0-.708zm-1.292 0a.5.5 0 0 0-.708 0l-2 2a.5.5 0 0 0 0 .708l2 2a.5.5 0 0 0 .708-.708L5.707 9l1.647-1.646a.5.5 0 0 0 0-.708z"/></svg>
+        Baixar Dashboard HTML
+      </a>
+    </div>
+
+    <div class="preview-tabs">
+      <button class="tab-btn active" data-tab="md">Markdown</button>
+      <button class="tab-btn" data-tab="html">Dashboard</button>
+    </div>
+    <div class="tab-pane active" id="tab-md">
+      <pre id="md-preview"></pre>
+    </div>
+    <div class="tab-pane" id="tab-html">
+      <iframe id="html-frame" title="Dashboard do Projeto"></iframe>
+    </div>
+  </div>
+
+</main>
+
+<script>
+// ═══════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════
+const $ = id => document.getElementById(id);
+const fieldPattern = /^([A-Z])\.\d+/i;
+
+function isOfficialSheet(name) {
+  const skip = ['area-tema-subtema','apoio','verificação','verificacao','bd-','quadro resumo'];
+  const lower = name.toLowerCase();
+  return !skip.some(s => lower.includes(s));
+}
+
+function cleanLabel(raw) {
+  if (!raw) return '';
+  return String(raw)
+    .replace(/\(limite de \d+ caracteres\)/gi, '')
+    .replace(/\(somente números\)/gi, '')
+    .replace(/\n/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function fmtBRL(v) {
+  if (v == null || v === '') return '—';
+  const n = parseFloat(v);
+  if (isNaN(n)) return String(v);
+  return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+function fmtVal(v) {
+  if (v == null || v === '') return '—';
+  if (typeof v === 'boolean') return v ? 'Sim' : 'Não';
+  if (v instanceof Date) return v.toLocaleDateString('pt-BR');
+  return String(v);
+}
+
+// ═══════════════════════════════════════════════
+//  MAIN EXTRACTOR
+// ═══════════════════════════════════════════════
+function extractPTRB(wb) {
+  const data = {};
+
+  // ── BASE ──────────────────────────────────────
+  const base = {};
+  if (wb.SheetNames.includes('BASE')) {
+    const ws = wb.Sheets['BASE'];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+    rows.forEach(row => {
+      if (!row[0] || typeof row[0] !== 'string') return;
+      const label = String(row[0]);
+      if (/^BASE\.\d+/i.test(label)) {
+        const key = cleanLabel(label);
+        let val = row[1];
+        if (val instanceof Date) val = val.toLocaleDateString('pt-BR');
+        base[key] = fmtVal(val);
+      }
+    });
+    // Annexes
+    const annexes = [];
+    let inAnnex = false;
+    rows.forEach(row => {
+      if (row[0] === 'NOME DO ARQUIVO') { inAnnex = true; return; }
+      if (inAnnex && row[0] && row[1]) annexes.push({ file: row[0], desc: row[1] });
+    });
+    base._annexes = annexes;
+  }
+  data.base = base;
+
+  // ── A - DADOS INSTITUCIONAIS ───────────────────
+  const inst = { proponents: [], executors: [] };
+  if (wb.SheetNames.includes('A - DADOS INST.')) {
+    const ws = wb.Sheets['A - DADOS INST.'];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+
+    // Find header row for proponents (A.1/A.2/A.3)
+    let propHeader = -1, execHeader = -1;
+    rows.forEach((row, i) => {
+      const vals = row.map(v => v ? String(v) : '');
+      if (vals.some(v => /^A\.1\s*-/.test(v))) propHeader = i;
+      if (vals.some(v => /^A\.7\s*-/.test(v))) execHeader = i;
+    });
+
+    // Proponents
+    if (propHeader >= 0) {
+      const hrow = rows[propHeader];
+      const cols = {};
+      hrow.forEach((v, i) => { if (v && /^A\.[123]/.test(String(v))) cols[String(v).match(/^A\.(\d+)/)[1]] = i; });
+      for (let r = propHeader + 1; r < rows.length; r++) {
+        const row = rows[r];
+        const name = row[cols['1']];
+        const cnpj = row[cols['2']];
+        const pct = row[cols['3']];
+        if (!name && !cnpj) break;
+        if (name || cnpj) inst.proponents.push({ razaoSocial: fmtVal(name), cnpj: fmtVal(cnpj), pct: pct != null ? (pct * 100).toFixed(0) + '%' : '—' });
+      }
+    }
+
+    // Executors - look for A.6/A.7 pattern
+    if (execHeader >= 0) {
+      const hrow = rows[execHeader];
+      const cols = {};
+      hrow.forEach((v, i) => {
+        if (!v) return;
+        const m = String(v).match(/^A\.(\d+)/);
+        if (m) cols[m[1]] = i;
+      });
+      for (let r = execHeader + 1; r < rows.length; r++) {
+        const row = rows[r];
+        // col A.6 = razão social
+        const name = row[cols['6']];
+        if (!name) break;
+        const executor = { razaoSocial: fmtVal(name) };
+        Object.entries(cols).forEach(([k, ci]) => { executor['A.' + k] = fmtVal(row[ci]); });
+        inst.executors.push(executor);
+      }
+    }
+  }
+  data.inst = inst;
+
+  // ── B - DADOS TÉCNICOS ────────────────────────
+  const tech = { fields: {}, results: [], keywords: [] };
+  if (wb.SheetNames.includes('B - DADOS TÉCNICOS')) {
+    const ws = wb.Sheets['B - DADOS TÉCNICOS'];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+
+    // Scan for B.X fields
+    rows.forEach(row => {
+      row.forEach((cell, ci) => {
+        if (!cell || typeof cell !== 'string') return;
+        if (/^B\.\d+\s*-/.test(cell)) {
+          const label = cleanLabel(cell);
+          const val = row[ci + 1] != null ? row[ci + 1] : (row[ci + 2] != null ? row[ci + 2] : null);
+          if (val != null && typeof val !== 'boolean') tech.fields[label] = fmtVal(val);
+        }
+      });
+    });
+
+    // Results (B.7/B.8/B.9 header + data rows)
+    let resultHeader = -1;
+    rows.forEach((row, i) => {
+      if (row.some(v => v && /^B\.7/.test(String(v)))) resultHeader = i;
+    });
+    if (resultHeader >= 0) {
+      const hrow = rows[resultHeader];
+      const c7 = hrow.findIndex(v => v && /^B\.7/.test(String(v)));
+      const c8 = hrow.findIndex(v => v && /^B\.8/.test(String(v)));
+      const c9 = hrow.findIndex(v => v && /^B\.9/.test(String(v)));
+      for (let r = resultHeader + 1; r < rows.length; r++) {
+        const row = rows[r];
+        if (!row[c7]) break;
+        tech.results.push({ desc: fmtVal(row[c7]), tipo: fmtVal(row[c8]), ods: fmtVal(row[c9]) });
+      }
+    }
+
+    // Keywords row (B.3)
+    rows.forEach(row => {
+      if (row[0] && /^B\.3/.test(String(row[0]))) {
+        for (let i = 1; i < row.length; i++) {
+          if (row[i] && typeof row[i] === 'string' && !row[i].startsWith('B.')) tech.keywords.push(row[i]);
+        }
+      }
+    });
+  }
+  data.tech = tech;
+
+  // ── C - ATIVIDADES ────────────────────────────
+  const activities = [];
+  if (wb.SheetNames.includes('C - DADOS ATIVIDADES')) {
+    const ws = wb.Sheets['C - DADOS ATIVIDADES'];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+    let hrow_idx = -1;
+    rows.forEach((row, i) => { if (row.some(v => v && /^C\.1/.test(String(v)))) hrow_idx = i; });
+    if (hrow_idx >= 0) {
+      const hrow = rows[hrow_idx];
+      const c1 = hrow.findIndex(v => v && /^C\.1/.test(String(v)));
+      const c2 = hrow.findIndex(v => v && /^C\.2/.test(String(v)));
+      const c3 = hrow.findIndex(v => v && /^C\.3/.test(String(v)));
+      const c4 = hrow.findIndex(v => v && /^C\.4/.test(String(v)));
+      for (let r = hrow_idx + 1; r < rows.length; r++) {
+        const row = rows[r];
+        if (!row[c1]) break;
+        activities.push({
+          id: fmtVal(row[c1]),
+          desc: fmtVal(row[c2]),
+          inicio: fmtVal(row[c3]),
+          fim: fmtVal(row[c4])
+        });
+      }
+    }
+  }
+  data.activities = activities;
+
+  // ── D - EQUIPE ────────────────────────────────
+  const team = [];
+  if (wb.SheetNames.includes('D - DADOS EQUIPE')) {
+    const ws = wb.Sheets['D - DADOS EQUIPE'];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+    let hrow_idx = -1;
+    rows.forEach((row, i) => { if (row.some(v => v && /^D\.1/.test(String(v)))) hrow_idx = i; });
+    if (hrow_idx >= 0) {
+      const hrow = rows[hrow_idx];
+      const c1 = hrow.findIndex(v => v && /^D\.1/.test(String(v)));
+      const c2 = hrow.findIndex(v => v && /^D\.2/.test(String(v)));
+      const c3 = hrow.findIndex(v => v && /^D\.3/.test(String(v)));
+      const c4 = hrow.findIndex(v => v && /^D\.4/.test(String(v)));
+      // D.5 activity columns start here
+      const c5start = hrow.findIndex(v => v && /^D\.5/.test(String(v)));
+      // Activity sub-headers are on next row
+      const actRow = rows[hrow_idx - 1] || [];
+      for (let r = hrow_idx + 1; r < rows.length; r++) {
+        const row = rows[r];
+        if (!row[c1]) break;
+        // Collect activities this member participates in
+        const memberActs = [];
+        if (c5start >= 0) {
+          for (let ci = c5start; ci < row.length; ci++) {
+            if (row[ci] === 'X' || row[ci] === 'x') {
+              const actLabel = actRow[ci] || hrow[ci];
+              if (actLabel) memberActs.push(String(actLabel));
+            }
+          }
+        }
+        team.push({
+          nome: fmtVal(row[c1]),
+          funcao: fmtVal(row[c2]),
+          formacao: fmtVal(row[c3]),
+          meses: fmtVal(row[c4]),
+          atividades: memberActs
+        });
+      }
+    }
+  }
+  data.team = team;
+
+  // ── EXPENSE SHEETS ────────────────────────────
+  const expSheets = {
+    'F - Desp. EQUIPE':                { cat: 'Despesas com Equipe Executora',               letter: 'F' },
+    'G - Desp. MAT. CONSUMO':          { cat: 'Despesas com Material de Consumo',            letter: 'G' },
+    'H - Desp. PASSAGENS':             { cat: 'Despesas com Passagens',                      letter: 'H' },
+    'I - Desp. DIÁRIA E AJ. DE CUSTO': { cat: 'Despesas com Diárias e Ajudas de Custo',     letter: 'I' },
+    'J - Desp. SERVIÇO':               { cat: 'Despesas com Serviços de Terceiros',          letter: 'J' },
+    'K - Desp. SERVIÇO-TIB':           { cat: 'Despesas com Serviços Específicos TIB',       letter: 'K' },
+    'L - Desp. PROTÓTIPO':             { cat: 'Despesas com Protótipo / Unidade Piloto',     letter: 'L' },
+    'M - Desp. OBRAS E INST.':         { cat: 'Despesas com Obras e Instalações',            letter: 'M' },
+    'N - Desp. EQUIPAM. E MAT. PERM.': { cat: 'Despesas com Equipamentos e Material Permanente', letter: 'N' },
+    'O - Desp. OUTROS BENS E DIR.':    { cat: 'Despesas com Outros Bens e Direitos',         letter: 'O' },
+    'P - Desp. CUSTOS DIRETOS':        { cat: 'Despesas com Custos Diretos',                 letter: 'P' },
+    'Q - Desp. CAPAC. DE FORN.':       { cat: 'Despesas com Capacitação de Fornecedores',   letter: 'Q' },
+    'R - Desp. REC. HUMANOS':          { cat: 'Despesas com Recursos Humanos (Bolsas)',      letter: 'R' },
+    'S - Desp. TESTES':                { cat: 'Despesas com Testes em Instalação Operacional', letter: 'S' },
+    'T - OUTRAS DESP.':                { cat: 'Outras Despesas',                             letter: 'T' },
+    'U - Desp. TRIBUTOS':              { cat: 'Despesas com Tributos',                       letter: 'U' },
+  };
+
+  const expenses = [];
+  wb.SheetNames.forEach(name => {
+    if (!expSheets[name]) return;
+    const meta = expSheets[name];
+    const ws = wb.Sheets[name];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+
+    // Find header row by looking for cells matching X.N pattern for this sheet's letter
+    let hrow_idx = -1;
+    rows.forEach((row, i) => {
+      if (row.some(v => v && new RegExp(`^${meta.letter}\\.\\d+`).test(String(v)))) {
+        if (hrow_idx < 0) hrow_idx = i;
+      }
+    });
+    if (hrow_idx < 0) return;
+
+    const hrow = rows[hrow_idx];
+    // Map official columns
+    const officialCols = [];
+    hrow.forEach((v, ci) => {
+      if (!v || !new RegExp(`^${meta.letter}\\.\\d+`).test(String(v))) return;
+      officialCols.push({ ci, label: cleanLabel(String(v)) });
+    });
+    // Also grab ITEM col (col 0 typically, contains X.Y item numbers)
+    const itemCol = hrow.findIndex(v => v && String(v).toUpperCase() === 'ITEM');
+
+    const catRows = [];
+    for (let r = hrow_idx + 1; r < rows.length; r++) {
+      const row = rows[r];
+      // Check if this row has any non-null official col value
+      const hasData = officialCols.some(({ ci }) => row[ci] != null && row[ci] !== '');
+      // Also check item col
+      const itemVal = itemCol >= 0 ? row[itemCol] : null;
+      if (!hasData && !itemVal) continue;
+      // Skip if all official values are empty/null
+      const allEmpty = officialCols.every(({ ci }) => row[ci] == null || row[ci] === '');
+      if (allEmpty) continue;
+
+      const entry = {};
+      if (itemVal) entry['Item'] = String(itemVal);
+      officialCols.forEach(({ ci, label }) => {
+        const v = row[ci];
+        if (v != null && v !== '') {
+          // Format currency fields
+          const isValue = /valor|custo|remuner|encargo/i.test(label);
+          entry[label] = isValue && typeof v === 'number' ? fmtBRL(v) : fmtVal(v);
+        }
+      });
+      catRows.push(entry);
+    }
+
+    if (catRows.length > 0) {
+      expenses.push({ category: meta.cat, letter: meta.letter, rows: catRows });
+    }
+  });
+  data.expenses = expenses;
+
+  // ── W - OUTRAS FONTES ──────────────────────────
+  const otherFunding = [];
+  if (wb.SheetNames.includes('W - OUTRAS FONTES')) {
+    const ws = wb.Sheets['W - OUTRAS FONTES'];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+    let hrow_idx = -1;
+    rows.forEach((row, i) => { if (row.some(v => v && /^W\.1/.test(String(v)))) hrow_idx = i; });
+    if (hrow_idx >= 0) {
+      const hrow = rows[hrow_idx];
+      const c1 = hrow.findIndex(v => v && /^W\.1/.test(String(v)));
+      const c2 = hrow.findIndex(v => v && /^W\.2/.test(String(v)));
+      const c3 = hrow.findIndex(v => v && /^W\.3/.test(String(v)));
+      for (let r = hrow_idx + 1; r < rows.length; r++) {
+        const row = rows[r];
+        if (!row[c1] && !row[c2] && !row[c3]) continue;
+        otherFunding.push({ fonte: fmtVal(row[c1]), obs: fmtVal(row[c2]), valor: typeof row[c3] === 'number' ? fmtBRL(row[c3]) : fmtVal(row[c3]) });
+      }
+    }
+  }
+  data.otherFunding = otherFunding;
+
+  // ── QUADRO RESUMO ──────────────────────────────
+  const summary = [];
+  if (wb.SheetNames.includes('QUADRO RESUMO')) {
+    const ws = wb.Sheets['QUADRO RESUMO'];
+    const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
+    let inData = false;
+    let totalProject = null;
+    rows.forEach(row => {
+      const label = row[0] || row[1];
+      const val = row[3];
+      if (!label) return;
+      const labelStr = String(label);
+      if (/ELEMENTO DE DESPESA/i.test(labelStr)) { inData = true; return; }
+      if (!inData) return;
+      if (typeof val === 'number' && val > 0 && labelStr && !labelStr.includes('RELATÓRIO')) {
+        summary.push({ elemento: labelStr, valor: fmtBRL(val) });
+      }
+      if (/VALOR TOTAL DO PROJETO/i.test(labelStr) && typeof val === 'number') {
+        totalProject = fmtBRL(val);
+      }
+    });
+    data.totalProject = totalProject;
+  }
+  data.summary = summary;
+
+  return data;
+}
+
+// ═══════════════════════════════════════════════
+//  MARKDOWN GENERATOR
+// ═══════════════════════════════════════════════
+function generateMarkdown(d) {
+  const lines = [];
+  const { base, inst, tech, activities, team, expenses, otherFunding, summary, totalProject } = d;
+
+  lines.push(`# PTR-B — Contexto do Projeto para Análise`);
+  lines.push(`> Documento gerado automaticamente pelo Extrator PTR-B (Inovatus). Contém os dados oficiais extraídos das abas de entrada do formulário PTR-B.`);
+  lines.push('');
+
+  // ── 1. IDENTIFICAÇÃO ──
+  lines.push(`## 1. Identificação do Projeto`);
+  lines.push('');
+  Object.entries(base).forEach(([k, v]) => {
+    if (k.startsWith('_')) return;
+    lines.push(`**${k}:** ${v}`);
+  });
+  lines.push('');
+
+  if (base._annexes && base._annexes.length > 0) {
+    lines.push(`### Anexos declarados`);
+    base._annexes.forEach(a => lines.push(`- \`${a.file}\` — ${a.desc}`));
+    lines.push('');
+  }
+
+  // ── 2. DADOS INSTITUCIONAIS ──
+  lines.push(`## 2. Dados Institucionais`);
+  lines.push('');
+  if (inst.proponents.length > 0) {
+    lines.push(`### Proponentes`);
+    lines.push('');
+    lines.push(`| Razão Social | CNPJ | % dos Recursos |`);
+    lines.push(`|---|---|---|`);
+    inst.proponents.forEach(p => lines.push(`| ${p.razaoSocial} | ${p.cnpj} | ${p.pct} |`));
+    lines.push('');
+  }
+  if (inst.executors.length > 0) {
+    lines.push(`### Executores`);
+    lines.push('');
+    inst.executors.forEach((e, i) => {
+      lines.push(`**Executor ${i + 1}:** ${e.razaoSocial}`);
+      Object.entries(e).forEach(([k, v]) => {
+        if (k === 'razaoSocial' || v === '—') return;
+        lines.push(`  - ${k}: ${v}`);
+      });
+    });
+    lines.push('');
+  }
+
+  // ── 3. DADOS TÉCNICOS ──
+  lines.push(`## 3. Dados Técnicos`);
+  lines.push('');
+  Object.entries(tech.fields).forEach(([k, v]) => {
+    lines.push(`**${k}:** ${v}`);
+  });
+  if (tech.keywords.length > 0) {
+    lines.push('');
+    lines.push(`**Palavras-chave:** ${tech.keywords.join(' · ')}`);
+  }
+  lines.push('');
+
+  if (tech.results.length > 0) {
+    lines.push(`### Resultados Esperados`);
+    lines.push('');
+    lines.push(`| # | Descrição | Tipo | ODS |`);
+    lines.push(`|---|---|---|---|`);
+    tech.results.forEach((r, i) => lines.push(`| ${i + 1} | ${r.desc} | ${r.tipo} | ${r.ods} |`));
+    lines.push('');
+  }
+
+  // ── 4. ATIVIDADES ──
+  lines.push(`## 4. Atividades e Cronograma`);
+  lines.push('');
+  if (activities.length > 0) {
+    lines.push(`| Atividade | Descrição | Início (mês) | Fim (mês) |`);
+    lines.push(`|---|---|---|---|`);
+    activities.forEach(a => lines.push(`| ${a.id} | ${a.desc} | ${a.inicio} | ${a.fim} |`));
+  } else {
+    lines.push('_Nenhuma atividade preenchida._');
+  }
+  lines.push('');
+
+  // ── 5. EQUIPE ──
+  lines.push(`## 5. Equipe Executora`);
+  lines.push('');
+  if (team.length > 0) {
+    lines.push(`| Nome / Identificação | Função | Formação | Período (meses) | Atividades |`);
+    lines.push(`|---|---|---|---|---|`);
+    team.forEach(m => {
+      const acts = m.atividades.length > 0 ? m.atividades.join(', ') : '—';
+      lines.push(`| ${m.nome} | ${m.funcao} | ${m.formacao} | ${m.meses} | ${acts} |`);
+    });
+  } else {
+    lines.push('_Nenhum membro cadastrado._');
+  }
+  lines.push('');
+
+  // ── 6. DESPESAS ──
+  lines.push(`## 6. Despesas por Categoria`);
+  lines.push('');
+  if (expenses.length > 0) {
+    expenses.forEach(cat => {
+      lines.push(`### ${cat.letter}. ${cat.category}`);
+      lines.push('');
+      if (cat.rows.length === 0) {
+        lines.push('_Sem itens preenchidos._');
+      } else {
+        const cols = [...new Set(cat.rows.flatMap(r => Object.keys(r)))];
+        lines.push(`| ${cols.join(' | ')} |`);
+        lines.push(`|${cols.map(() => '---').join('|')}|`);
+        cat.rows.forEach(row => {
+          lines.push(`| ${cols.map(c => (row[c] || '—').replace(/\|/g, '&#124;')) .join(' | ')} |`);
+        });
+      }
+      lines.push('');
+    });
+  } else {
+    lines.push('_Nenhuma categoria de despesa preenchida._');
+    lines.push('');
+  }
+
+  // ── 7. QUADRO RESUMO ──
+  if (summary.length > 0) {
+    lines.push(`## 7. Quadro Resumo das Despesas`);
+    lines.push('');
+    lines.push(`| Elemento de Despesa | Valor (R$) |`);
+    lines.push(`|---|---|`);
+    summary.forEach(s => lines.push(`| ${s.elemento} | ${s.valor} |`));
+    if (totalProject) {
+      lines.push(`| **VALOR TOTAL DO PROJETO** | **${totalProject}** |`);
+    }
+    lines.push('');
+  }
+
+  // ── 8. OUTRAS FONTES ──
+  if (otherFunding.length > 0) {
+    lines.push(`## 8. Outras Fontes de Financiamento`);
+    lines.push('');
+    lines.push(`| Fonte | Observações | Valor |`);
+    lines.push(`|---|---|---|`);
+    otherFunding.forEach(f => lines.push(`| ${f.fonte} | ${f.obs} | ${f.valor} |`));
+    lines.push('');
+  }
+
+  lines.push(`---`);
+  lines.push(`*Extraído em ${new Date().toLocaleString('pt-BR')} · Inovatus Extrator PTR-B*`);
+
+  return lines.join('\n');
+}
+
+// ═══════════════════════════════════════════════
+//  HTML DASHBOARD GENERATOR
+// ═══════════════════════════════════════════════
+function generateHTML(d) {
+  const { base, inst, tech, activities, team, expenses, otherFunding, summary, totalProject } = d;
+  const title = base['BASE.1 - TÍTULO'] || 'Projeto sem título';
+  const qual = base['BASE.2 - QUALIFICAÇÃO'] || '—';
+  const prazo = tech.fields['B.2 - PRAZO DE EXECUÇÃO (MESES)'] || '—';
+  const proponent = inst.proponents.length > 0 ? inst.proponents[0].razaoSocial : '—';
+
+  const tableStyle = `border-collapse:collapse;width:100%;font-size:13px;margin-bottom:24px;`;
+  const thStyle = `background:#1e3a52;color:#8fa3b3;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.06em;padding:10px 14px;text-align:left;border-bottom:2px solid #2a4a62;`;
+  const tdStyle = `padding:10px 14px;border-bottom:1px solid #1e3a52;color:#e0ede8;vertical-align:top;`;
+  const trAltStyle = `background:#162d40;`;
+
+  function makeTable(rows, cols) {
+    if (!rows || rows.length === 0) return '<p style="color:#8fa3b3;font-style:italic;margin:0 0 24px;">Sem itens preenchidos.</p>';
+    let h = `<table style="${tableStyle}"><thead><tr>`;
+    cols.forEach(c => { h += `<th style="${thStyle}">${c}</th>`; });
+    h += '</tr></thead><tbody>';
+    rows.forEach((row, i) => {
+      h += `<tr style="${i % 2 === 1 ? trAltStyle : ''}">`;
+      cols.forEach(c => { h += `<td style="${tdStyle}">${row[c] || '—'}</td>`; });
+      h += '</tr>';
+    });
+    h += '</tbody></table>';
+    return h;
+  }
+
+  function section(id, icon, label, content) {
+    return `
+    <section id="${id}" style="margin-bottom:48px;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #1e3a52;">
+        <span style="font-size:18px;">${icon}</span>
+        <h2 style="font-size:16px;font-weight:700;color:#e0ede8;margin:0;">${label}</h2>
+      </div>
+      ${content}
+    </section>`;
+  }
+
+  // Summary cards
+  let totalVal = totalProject || '—';
+  const cards = [
+    { label: 'Qualificação', val: qual },
+    { label: 'Proponente', val: proponent },
+    { label: 'Prazo', val: prazo !== '—' ? prazo + ' meses' : '—' },
+    { label: 'Valor Total', val: totalVal },
+    { label: 'Equipe', val: team.length + ' membros' },
+    { label: 'Atividades', val: activities.length + ' atividades' },
+  ];
+
+  const cardsHtml = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:40px;">
+    ${cards.map(c => `<div style="background:#162d40;border:1px solid #2a4a62;border-radius:8px;padding:16px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8fa3b3;letter-spacing:0.08em;margin-bottom:6px;">${c.label.toUpperCase()}</div>
+      <div style="font-size:14px;font-weight:600;color:#f0ede8;line-height:1.3;">${c.val}</div>
+    </div>`).join('')}
+  </div>`;
+
+  // Proponents table
+  const propContent = makeTable(inst.proponents.map(p => ({ 'Razão Social': p.razaoSocial, 'CNPJ': p.cnpj, '% Recursos': p.pct })), ['Razão Social', 'CNPJ', '% Recursos']);
+
+  // Executors
+  const execContent = inst.executors.length > 0
+    ? inst.executors.map((e, i) => `<div style="background:#162d40;border:1px solid #2a4a62;border-radius:8px;padding:16px;margin-bottom:12px;">
+      <div style="font-weight:700;color:#e8a020;margin-bottom:8px;">Executor ${i + 1}</div>
+      ${Object.entries(e).filter(([k]) => k !== 'razaoSocial').map(([k, v]) => `<div style="font-size:13px;color:#c0d0dc;"><span style="color:#8fa3b3;">${k}:</span> ${v}</div>`).join('')}
+      <div style="font-size:14px;font-weight:600;color:#e0ede8;margin-bottom:8px;">${e.razaoSocial}</div>
+    </div>`).join('')
+    : '<p style="color:#8fa3b3;font-style:italic;">Nenhum executor cadastrado.</p>';
+
+  // Results
+  const resultCols = ['Descrição', 'Tipo', 'ODS'];
+  const resultsContent = makeTable(tech.results.map(r => ({ 'Descrição': r.desc, 'Tipo': r.tipo, 'ODS': r.ods })), resultCols);
+
+  // Activities
+  const actCols = ['Atividade', 'Descrição', 'Início (mês)', 'Fim (mês)'];
+  const actsContent = makeTable(activities.map(a => ({ 'Atividade': a.id, 'Descrição': a.desc, 'Início (mês)': a.inicio, 'Fim (mês)': a.fim })), actCols);
+
+  // Team
+  const teamCols = ['Nome / Identificação', 'Função', 'Formação', 'Período (meses)', 'Atividades'];
+  const teamContent = makeTable(team.map(m => ({
+    'Nome / Identificação': m.nome,
+    'Função': m.funcao,
+    'Formação': m.formacao,
+    'Período (meses)': m.meses,
+    'Atividades': m.atividades.join(', ') || '—'
+  })), teamCols);
+
+  // Expenses
+  let expContent = '';
+  if (expenses.length === 0) {
+    expContent = '<p style="color:#8fa3b3;font-style:italic;">Nenhuma categoria de despesa preenchida.</p>';
+  } else {
+    expenses.forEach(cat => {
+      const catTotal = (() => {
+        // Try to find a value column
+        const valKey = Object.keys(cat.rows[0] || {}).find(k => /valor|custo/i.test(k));
+        return null; // just display as-is
+      })();
+      expContent += `<div style="margin-bottom:32px;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#e8a020;letter-spacing:0.06em;margin-bottom:12px;padding:6px 12px;background:rgba(232,160,32,0.08);border-left:3px solid #e8a020;border-radius:0 4px 4px 0;">${cat.letter}. ${cat.category}</div>
+        ${makeTable(cat.rows, [...new Set(cat.rows.flatMap(r => Object.keys(r)))])}
+      </div>`;
+    });
+  }
+
+  // Summary
+  let summaryContent = '';
+  if (summary.length > 0) {
+    summaryContent = `<table style="${tableStyle}"><thead><tr>
+      <th style="${thStyle}">Elemento de Despesa</th>
+      <th style="${thStyle};text-align:right;">Valor (R$)</th>
+    </tr></thead><tbody>
+    ${summary.map((s, i) => `<tr style="${i % 2 === 1 ? trAltStyle : ''}">
+      <td style="${tdStyle}">${s.elemento}</td>
+      <td style="${tdStyle};text-align:right;font-family:'IBM Plex Mono',monospace;">${s.valor}</td>
+    </tr>`).join('')}
+    ${totalProject ? `<tr style="background:#1e3a52;border-top:2px solid #e8a020;">
+      <td style="${tdStyle};font-weight:700;color:#e8a020;">VALOR TOTAL DO PROJETO</td>
+      <td style="${tdStyle};text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:700;color:#e8a020;">${totalProject}</td>
+    </tr>` : ''}
+    </tbody></table>`;
+  }
+
+  // Other funding
+  let wContent = otherFunding.length > 0
+    ? makeTable(otherFunding.map(f => ({ 'Fonte': f.fonte, 'Observações': f.obs, 'Valor': f.valor })), ['Fonte', 'Observações', 'Valor'])
+    : '<p style="color:#8fa3b3;font-style:italic;">Sem outras fontes de financiamento declaradas.</p>';
+
+  // Nav items
+  const navItems = [
+    { id: 'sec-identificacao', label: 'Identificação' },
+    { id: 'sec-inst', label: 'Institucional' },
+    { id: 'sec-tecnico', label: 'Técnico' },
+    { id: 'sec-atividades', label: 'Atividades' },
+    { id: 'sec-equipe', label: 'Equipe' },
+    { id: 'sec-despesas', label: 'Despesas' },
+    { id: 'sec-resumo', label: 'Resumo' },
+  ];
+
+  return `<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PTR-B · ${title.substring(0, 60)}</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:#0f1e2a;color:#e0ede8;font-family:'Inter',sans-serif;line-height:1.6;}
+.top-bar{background:#162d40;border-bottom:1px solid #1e3a52;padding:12px 32px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;}
+.top-bar .mark{width:24px;height:24px;background:#e8a020;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);}
+.top-bar .app{font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8fa3b3;}<br>.top-bar .app strong{color:#e0ede8;}
+.top-bar .spacer{flex:1;}
+.top-bar .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#e8a020;background:rgba(232,160,32,0.12);border:1px solid rgba(232,160,32,0.25);padding:3px 8px;border-radius:3px;letter-spacing:0.06em;}
+.sidebar{position:fixed;left:0;top:53px;bottom:0;width:200px;background:#0f1e2a;border-right:1px solid #1e3a52;padding:24px 0;overflow-y:auto;}
+.sidebar a{display:block;padding:8px 24px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8fa3b3;text-decoration:none;letter-spacing:0.04em;transition:color 0.15s,background 0.15s;}
+.sidebar a:hover{color:#e8a020;background:rgba(232,160,32,0.06);}
+.sidebar .sid-label{font-size:10px;color:#3a5a72;letter-spacing:0.1em;text-transform:uppercase;padding:16px 24px 6px;margin-top:8px;}
+main{margin-left:200px;padding:40px 48px 80px;}
+.hero{margin-bottom:40px;padding:28px 32px;background:linear-gradient(135deg,#162d40 0%,#1e3a52 100%);border:1px solid #2a4a62;border-radius:12px;}
+.hero-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#e8a020;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:10px;}
+.hero-title{font-size:20px;font-weight:700;line-height:1.4;margin-bottom:16px;color:#f0ede8;}
+.obj-box{background:#0f1e2a;border-radius:8px;padding:16px 20px;font-size:14px;color:#c0d0dc;line-height:1.7;margin-bottom:16px;}
+.kw-list{display:flex;gap:8px;flex-wrap:wrap;}
+.kw{font-family:'IBM Plex Mono',monospace;font-size:11px;background:rgba(232,160,32,0.1);border:1px solid rgba(232,160,32,0.25);color:#e8a020;padding:3px 10px;border-radius:20px;}
+.field-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-bottom:24px;}
+.field-item{background:#162d40;border:1px solid #1e3a52;border-radius:6px;padding:12px 16px;}
+.field-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8fa3b3;letter-spacing:0.06em;margin-bottom:4px;}
+.field-val{font-size:13px;color:#e0ede8;}
+@media(max-width:700px){.sidebar{display:none;}main{margin-left:0;padding:24px 20px;}}
+</style>
+</head>
+<body>
+<div class="top-bar">
+  <div class="mark"></div>
+  <div class="app"><strong>INOVATUS</strong> · Dashboard PTR-B</div>
+  <div class="spacer"></div>
+  <div class="tag">ANP R&amp;D</div>
+</div>
+
+<nav class="sidebar">
+  <div class="sid-label">Navegação</div>
+  ${navItems.map(n => `<a href="#${n.id}">${n.label}</a>`).join('')}
+</nav>
+
+<main>
+  <div class="hero">
+    <div class="hero-eyebrow">PTR-B · Plano de Trabalho e Recursos</div>
+    <div class="hero-title">${title}</div>
+    ${tech.fields['B.1 - OBJETIVO GERAL'] ? `<div class="obj-box">${tech.fields['B.1 - OBJETIVO GERAL']}</div>` : ''}
+    ${tech.keywords.length > 0 ? `<div class="kw-list">${tech.keywords.map(k => `<span class="kw">${k}</span>`).join('')}</div>` : ''}
+  </div>
+
+  ${cardsHtml}
+
+  ${section('sec-identificacao', '📋', 'Identificação do Projeto', `
+    <div class="field-grid">
+    ${Object.entries(base).filter(([k]) => !k.startsWith('_')).map(([k, v]) => `
+      <div class="field-item">
+        <div class="field-label">${k}</div>
+        <div class="field-val">${v}</div>
+      </div>`).join('')}
+    </div>
+    ${base._annexes && base._annexes.length > 0 ? `
+    <div style="margin-top:8px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8fa3b3;letter-spacing:0.06em;margin-bottom:8px;">ANEXOS DECLARADOS</div>
+      ${base._annexes.map(a => `<div style="font-size:13px;padding:6px 0;border-bottom:1px solid #1e3a52;"><code style="color:#e8a020;">${a.file}</code> — ${a.desc}</div>`).join('')}
+    </div>` : ''}
+  `)}
+
+  ${section('sec-inst', '🏛️', 'Dados Institucionais', `
+    <h3 style="font-size:13px;font-weight:600;color:#8fa3b3;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:12px;">Proponentes</h3>
+    ${propContent}
+    <h3 style="font-size:13px;font-weight:600;color:#8fa3b3;letter-spacing:0.06em;text-transform:uppercase;margin:24px 0 12px;">Executores</h3>
+    ${execContent}
+  `)}
+
+  ${section('sec-tecnico', '🔬', 'Dados Técnicos', `
+    <div class="field-grid">
+    ${Object.entries(tech.fields).filter(([k]) => !/B\.1|B\.3/i.test(k)).map(([k, v]) => `
+      <div class="field-item">
+        <div class="field-label">${k}</div>
+        <div class="field-val">${v}</div>
+      </div>`).join('')}
+    </div>
+    <h3 style="font-size:13px;font-weight:600;color:#8fa3b3;letter-spacing:0.06em;text-transform:uppercase;margin:24px 0 12px;">Resultados Esperados</h3>
+    ${resultsContent}
+  `)}
+
+  ${section('sec-atividades', '📅', 'Atividades e Cronograma', actsContent)}
+
+  ${section('sec-equipe', '👥', 'Equipe Executora', teamContent)}
+
+  ${section('sec-despesas', '💰', 'Despesas por Categoria', expContent)}
+
+  ${section('sec-resumo', '📊', 'Quadro Resumo das Despesas', `
+    ${summaryContent}
+    ${otherFunding.length > 0 ? `
+    <h3 style="font-size:13px;font-weight:600;color:#8fa3b3;letter-spacing:0.06em;text-transform:uppercase;margin:24px 0 12px;">Outras Fontes de Financiamento</h3>
+    ${wContent}` : ''}
+  `)}
+
+  <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#3a5a72;margin-top:40px;padding-top:24px;border-top:1px solid #1e3a52;">
+    Extraído em ${new Date().toLocaleString('pt-BR')} · Inovatus Extrator PTR-B
+  </div>
+</main>
+</body>
+</html>`;
+}
+
+// ═══════════════════════════════════════════════
+//  UI LOGIC
+// ═══════════════════════════════════════════════
+function showStatus(msg) {
+  const bar = $('status-bar');
+  bar.style.display = 'flex';
+  $('status-msg').textContent = msg;
+}
+function hideStatus() { $('status-bar').style.display = 'none'; }
+function showError(msg) {
+  const box = $('error-box');
+  box.style.display = 'block';
+  box.textContent = '⚠ ' + msg;
+}
+function clearError() { $('error-box').style.display = 'none'; }
+
+function processFile(file) {
+  clearError();
+  showStatus('Lendo arquivo Excel...');
+  $('drop-section').style.display = 'none';
+  $('results').style.display = 'none';
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      showStatus('Extraindo dados das abas oficiais...');
+      const data = new Uint8Array(e.target.result);
+      const wb = XLSX.read(data, { type: 'array', cellDates: true });
+
+      showStatus('Gerando Markdown...');
+      const extracted = extractPTRB(wb);
+
+      showStatus('Gerando dashboard HTML...');
+      const md = generateMarkdown(extracted);
+      const html = generateHTML(extracted);
+
+      // Update UI
+      const title = extracted.base['BASE.1 - TÍTULO'] || 'Projeto sem título';
+      $('pb-title').textContent = title;
+
+      const metaItems = [
+        { k: 'Qualificação', v: extracted.base['BASE.2 - QUALIFICAÇÃO'] || '—' },
+        { k: 'Prazo', v: (extracted.tech.fields['B.2 - PRAZO DE EXECUÇÃO (MESES)'] || '—') + ' meses' },
+        { k: 'Valor Total', v: extracted.totalProject || '—' },
+        { k: 'Membros', v: extracted.team.length },
+      ];
+      $('pb-meta').innerHTML = metaItems.map(m => `
+        <div class="pb-meta-item">
+          <span class="mk">${m.k.toUpperCase()}</span>
+          <span class="mv">${m.v}</span>
+        </div>`).join('');
+
+      // MD download
+      const mdBlob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+      $('dl-md').href = URL.createObjectURL(mdBlob);
+
+      // HTML download
+      const htmlBlob = new Blob([html], { type: 'text/html;charset=utf-8' });
+      $('dl-html').href = URL.createObjectURL(htmlBlob);
+
+      // Preview
+      $('md-preview').textContent = md;
+      const htmlFrame = $('html-frame');
+      htmlFrame.srcdoc = html;
+
+      hideStatus();
+      $('results').style.display = 'block';
+    } catch (err) {
+      hideStatus();
+      $('drop-section').style.display = 'block';
+      showError('Erro ao processar o arquivo: ' + err.message);
+      console.error(err);
+    }
+  };
+  reader.onerror = () => {
+    hideStatus();
+    $('drop-section').style.display = 'block';
+    showError('Não foi possível ler o arquivo.');
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// ── Events ──
+$('file-input').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) processFile(file);
+});
+
+const dz = $('drop-zone');
+dz.addEventListener('dragover', (e) => { e.preventDefault(); dz.classList.add('dragover'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+dz.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dz.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file && (file.name.endsWith('.xlsx') || file.name.endsWith('.xlsm'))) processFile(file);
+  else showError('Por favor, selecione um arquivo .xlsx válido.');
+});
+
+$('reset-btn').addEventListener('click', () => {
+  $('results').style.display = 'none';
+  $('drop-section').style.display = 'block';
+  $('file-input').value = '';
+  clearError();
+});
+
+// Tabs
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const tab = btn.dataset.tab;
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    $('tab-' + tab).classList.add('active');
+  });
+});
+</script>
+</body>
+</html>
