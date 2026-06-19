@@ -804,12 +804,12 @@ function generateHTML(d) {
   const proponent = inst.proponents.length > 0 ? inst.proponents[0].razaoSocial : '—';
 
   const tableStyle = `border-collapse:collapse;width:100%;font-size:13px;margin-bottom:24px;`;
-  const thStyle = `background:#1e3a52;color:#8fa3b3;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.06em;padding:10px 14px;text-align:left;border-bottom:2px solid #2a4a62;`;
-  const tdStyle = `padding:10px 14px;border-bottom:1px solid #1e3a52;color:#e0ede8;vertical-align:top;`;
-  const trAltStyle = `background:#162d40;`;
+  const thStyle = `background:#F0EEE9;color:#6B7A8D;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.06em;padding:10px 14px;text-align:left;border-bottom:2px solid #DDD9D1;`;
+  const tdStyle = `padding:10px 14px;border-bottom:1px solid #EAE7E1;color:#1A2332;vertical-align:top;`;
+  const trAltStyle = `background:#F7F6F3;`;
 
   function makeTable(rows, cols) {
-    if (!rows || rows.length === 0) return '<p style="color:#8fa3b3;font-style:italic;margin:0 0 24px;">Sem itens preenchidos.</p>';
+    if (!rows || rows.length === 0) return '<p style="color:#6B7A8D;font-style:italic;margin:0 0 24px;">Sem itens preenchidos.</p>';
     let h = `<table style="${tableStyle}"><thead><tr>`;
     cols.forEach(c => { h += `<th style="${thStyle}">${c}</th>`; });
     h += '</tr></thead><tbody>';
@@ -825,9 +825,9 @@ function generateHTML(d) {
   function section(id, icon, label, content) {
     return `
     <section id="${id}" style="margin-bottom:48px;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #1e3a52;">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #DDD9D1;">
         <span style="font-size:18px;">${icon}</span>
-        <h2 style="font-size:16px;font-weight:700;color:#e0ede8;margin:0;">${label}</h2>
+        <h2 style="font-size:16px;font-weight:700;color:#1A2332;margin:0;">${label}</h2>
       </div>
       ${content}
     </section>`;
@@ -845,9 +845,9 @@ function generateHTML(d) {
   ];
 
   const cardsHtml = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:40px;">
-    ${cards.map(c => `<div style="background:#162d40;border:1px solid #2a4a62;border-radius:8px;padding:16px;">
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8fa3b3;letter-spacing:0.08em;margin-bottom:6px;">${c.label.toUpperCase()}</div>
-      <div style="font-size:14px;font-weight:600;color:#f0ede8;line-height:1.3;">${c.val}</div>
+    ${cards.map(c => `<div style="background:#FFFFFF;border:1px solid #DDD9D1;border-radius:8px;padding:16px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#6B7A8D;letter-spacing:0.08em;margin-bottom:6px;">${c.label.toUpperCase()}</div>
+      <div style="font-size:14px;font-weight:600;color:#1A2332;line-height:1.3;">${c.val}</div>
     </div>`).join('')}
   </div>`;
 
@@ -856,12 +856,12 @@ function generateHTML(d) {
 
   // Executors
   const execContent = inst.executors.length > 0
-    ? inst.executors.map((e, i) => `<div style="background:#162d40;border:1px solid #2a4a62;border-radius:8px;padding:16px;margin-bottom:12px;">
-      <div style="font-weight:700;color:#e8a020;margin-bottom:8px;">Executor ${i + 1}</div>
-      ${Object.entries(e).filter(([k]) => k !== 'razaoSocial').map(([k, v]) => `<div style="font-size:13px;color:#c0d0dc;"><span style="color:#8fa3b3;">${k}:</span> ${v}</div>`).join('')}
-      <div style="font-size:14px;font-weight:600;color:#e0ede8;margin-bottom:8px;">${e.razaoSocial}</div>
+    ? inst.executors.map((e, i) => `<div style="background:#FFFFFF;border:1px solid #DDD9D1;border-radius:8px;padding:16px;margin-bottom:12px;">
+      <div style="font-weight:700;color:#C47E10;margin-bottom:8px;">Executor ${i + 1}</div>
+      ${Object.entries(e).filter(([k]) => k !== 'razaoSocial').map(([k, v]) => `<div style="font-size:13px;color:#374151;"><span style="color:#6B7A8D;">${k}:</span> ${v}</div>`).join('')}
+      <div style="font-size:14px;font-weight:600;color:#1A2332;margin-bottom:8px;">${e.razaoSocial}</div>
     </div>`).join('')
-    : '<p style="color:#8fa3b3;font-style:italic;">Nenhum executor cadastrado.</p>';
+    : '<p style="color:#6B7A8D;font-style:italic;">Nenhum executor cadastrado.</p>';
 
   // Results
   const resultCols = ['Descrição', 'Tipo', 'ODS'];
@@ -884,7 +884,7 @@ function generateHTML(d) {
   // Expenses
   let expContent = '';
   if (expenses.length === 0) {
-    expContent = '<p style="color:#8fa3b3;font-style:italic;">Nenhuma categoria de despesa preenchida.</p>';
+    expContent = '<p style="color:#6B7A8D;font-style:italic;">Nenhuma categoria de despesa preenchida.</p>';
   } else {
     expenses.forEach(cat => {
       const catTotal = (() => {
@@ -893,7 +893,7 @@ function generateHTML(d) {
         return null; // just display as-is
       })();
       expContent += `<div style="margin-bottom:32px;">
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#e8a020;letter-spacing:0.06em;margin-bottom:12px;padding:6px 12px;background:rgba(232,160,32,0.08);border-left:3px solid #e8a020;border-radius:0 4px 4px 0;">${cat.letter}. ${cat.category}</div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#C47E10;letter-spacing:0.06em;margin-bottom:12px;padding:6px 12px;background:rgba(196,126,16,0.08);border-left:3px solid #C47E10;border-radius:0 4px 4px 0;">${cat.letter}. ${cat.category}</div>
         ${makeTable(cat.rows, [...new Set(cat.rows.flatMap(r => Object.keys(r)))])}
       </div>`;
     });
@@ -910,9 +910,9 @@ function generateHTML(d) {
       <td style="${tdStyle}">${s.elemento}</td>
       <td style="${tdStyle};text-align:right;font-family:'IBM Plex Mono',monospace;">${s.valor}</td>
     </tr>`).join('')}
-    ${totalProject ? `<tr style="background:#1e3a52;border-top:2px solid #e8a020;">
-      <td style="${tdStyle};font-weight:700;color:#e8a020;">VALOR TOTAL DO PROJETO</td>
-      <td style="${tdStyle};text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:700;color:#e8a020;">${totalProject}</td>
+    ${totalProject ? `<tr style="background:#FFF8ED;border-top:2px solid #C47E10;">
+      <td style="${tdStyle};font-weight:700;color:#C47E10;">VALOR TOTAL DO PROJETO</td>
+      <td style="${tdStyle};text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:700;color:#C47E10;">${totalProject}</td>
     </tr>` : ''}
     </tbody></table>`;
   }
@@ -920,7 +920,7 @@ function generateHTML(d) {
   // Other funding
   let wContent = otherFunding.length > 0
     ? makeTable(otherFunding.map(f => ({ 'Fonte': f.fonte, 'Observações': f.obs, 'Valor': f.valor })), ['Fonte', 'Observações', 'Valor'])
-    : '<p style="color:#8fa3b3;font-style:italic;">Sem outras fontes de financiamento declaradas.</p>';
+    : '<p style="color:#6B7A8D;font-style:italic;">Sem outras fontes de financiamento declaradas.</p>';
 
   // Nav items
   const navItems = [
@@ -943,27 +943,27 @@ function generateHTML(d) {
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:#0f1e2a;color:#e0ede8;font-family:'Inter',sans-serif;line-height:1.6;}
-.top-bar{background:#162d40;border-bottom:1px solid #1e3a52;padding:12px 32px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;}
-.top-bar .mark{width:24px;height:24px;background:#e8a020;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);}
-.top-bar .app{font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8fa3b3;}<br>.top-bar .app strong{color:#e0ede8;}
+body{background:#F7F6F3;color:#1A2332;font-family:'Inter',sans-serif;line-height:1.6;}
+.top-bar{background:#FFFFFF;border-bottom:1px solid #DDD9D1;padding:12px 32px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;}
+.top-bar .mark{width:24px;height:24px;background:#C47E10;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);}
+.top-bar .app{font-family:'IBM Plex Mono',monospace;font-size:12px;color:#6B7A8D;}.top-bar .app strong{color:#1A2332;}
 .top-bar .spacer{flex:1;}
-.top-bar .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#e8a020;background:rgba(232,160,32,0.12);border:1px solid rgba(232,160,32,0.25);padding:3px 8px;border-radius:3px;letter-spacing:0.06em;}
-.sidebar{position:fixed;left:0;top:53px;bottom:0;width:200px;background:#0f1e2a;border-right:1px solid #1e3a52;padding:24px 0;overflow-y:auto;}
-.sidebar a{display:block;padding:8px 24px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8fa3b3;text-decoration:none;letter-spacing:0.04em;transition:color 0.15s,background 0.15s;}
-.sidebar a:hover{color:#e8a020;background:rgba(232,160,32,0.06);}
-.sidebar .sid-label{font-size:10px;color:#3a5a72;letter-spacing:0.1em;text-transform:uppercase;padding:16px 24px 6px;margin-top:8px;}
+.top-bar .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#C47E10;background:rgba(196,126,16,0.10);border:1px solid rgba(196,126,16,0.25);padding:3px 8px;border-radius:3px;letter-spacing:0.06em;}
+.sidebar{position:fixed;left:0;top:53px;bottom:0;width:200px;background:#FFFFFF;border-right:1px solid #DDD9D1;padding:24px 0;overflow-y:auto;}
+.sidebar a{display:block;padding:8px 24px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6B7A8D;text-decoration:none;letter-spacing:0.04em;transition:color 0.15s,background 0.15s;}
+.sidebar a:hover{color:#C47E10;background:rgba(196,126,16,0.06);}
+.sidebar .sid-label{font-size:10px;color:#C4BEB4;letter-spacing:0.1em;text-transform:uppercase;padding:16px 24px 6px;margin-top:8px;}
 main{margin-left:200px;padding:40px 48px 80px;}
-.hero{margin-bottom:40px;padding:28px 32px;background:linear-gradient(135deg,#162d40 0%,#1e3a52 100%);border:1px solid #2a4a62;border-radius:12px;}
-.hero-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#e8a020;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:10px;}
-.hero-title{font-size:20px;font-weight:700;line-height:1.4;margin-bottom:16px;color:#f0ede8;}
-.obj-box{background:#0f1e2a;border-radius:8px;padding:16px 20px;font-size:14px;color:#c0d0dc;line-height:1.7;margin-bottom:16px;}
+.hero{margin-bottom:40px;padding:28px 32px;background:linear-gradient(135deg,#FFF8ED 0%,#F0EEE9 100%);border:1px solid #DDD9D1;border-radius:12px;}
+.hero-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#C47E10;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:10px;}
+.hero-title{font-size:20px;font-weight:700;line-height:1.4;margin-bottom:16px;color:#1A2332;}
+.obj-box{background:#FFFFFF;border:1px solid #EAE7E1;border-radius:8px;padding:16px 20px;font-size:14px;color:#374151;line-height:1.7;margin-bottom:16px;}
 .kw-list{display:flex;gap:8px;flex-wrap:wrap;}
-.kw{font-family:'IBM Plex Mono',monospace;font-size:11px;background:rgba(232,160,32,0.1);border:1px solid rgba(232,160,32,0.25);color:#e8a020;padding:3px 10px;border-radius:20px;}
+.kw{font-family:'IBM Plex Mono',monospace;font-size:11px;background:rgba(196,126,16,0.08);border:1px solid rgba(196,126,16,0.25);color:#C47E10;padding:3px 10px;border-radius:20px;}
 .field-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-bottom:24px;}
-.field-item{background:#162d40;border:1px solid #1e3a52;border-radius:6px;padding:12px 16px;}
-.field-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#8fa3b3;letter-spacing:0.06em;margin-bottom:4px;}
-.field-val{font-size:13px;color:#e0ede8;}
+.field-item{background:#FFFFFF;border:1px solid #DDD9D1;border-radius:6px;padding:12px 16px;}
+.field-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#6B7A8D;letter-spacing:0.06em;margin-bottom:4px;}
+.field-val{font-size:13px;color:#1A2332;}
 @media(max-width:700px){.sidebar{display:none;}main{margin-left:0;padding:24px 20px;}}
 </style>
 </head>
@@ -1000,15 +1000,15 @@ main{margin-left:200px;padding:40px 48px 80px;}
     </div>
     ${base._annexes && base._annexes.length > 0 ? `
     <div style="margin-top:8px;">
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8fa3b3;letter-spacing:0.06em;margin-bottom:8px;">ANEXOS DECLARADOS</div>
-      ${base._annexes.map(a => `<div style="font-size:13px;padding:6px 0;border-bottom:1px solid #1e3a52;"><code style="color:#e8a020;">${a.file}</code> — ${a.desc}</div>`).join('')}
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6B7A8D;letter-spacing:0.06em;margin-bottom:8px;">ANEXOS DECLARADOS</div>
+      ${base._annexes.map(a => `<div style="font-size:13px;padding:6px 0;border-bottom:1px solid #EAE7E1;"><code style="color:#C47E10;">${a.file}</code> — ${a.desc}</div>`).join('')}
     </div>` : ''}
   `)}
 
   ${section('sec-inst', '🏛️', 'Dados Institucionais', `
-    <h3 style="font-size:13px;font-weight:600;color:#8fa3b3;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:12px;">Proponentes</h3>
+    <h3 style="font-size:13px;font-weight:600;color:#6B7A8D;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:12px;">Proponentes</h3>
     ${propContent}
-    <h3 style="font-size:13px;font-weight:600;color:#8fa3b3;letter-spacing:0.06em;text-transform:uppercase;margin:24px 0 12px;">Executores</h3>
+    <h3 style="font-size:13px;font-weight:600;color:#6B7A8D;letter-spacing:0.06em;text-transform:uppercase;margin:24px 0 12px;">Executores</h3>
     ${execContent}
   `)}
 
@@ -1020,7 +1020,7 @@ main{margin-left:200px;padding:40px 48px 80px;}
         <div class="field-val">${v}</div>
       </div>`).join('')}
     </div>
-    <h3 style="font-size:13px;font-weight:600;color:#8fa3b3;letter-spacing:0.06em;text-transform:uppercase;margin:24px 0 12px;">Resultados Esperados</h3>
+    <h3 style="font-size:13px;font-weight:600;color:#6B7A8D;letter-spacing:0.06em;text-transform:uppercase;margin:24px 0 12px;">Resultados Esperados</h3>
     ${resultsContent}
   `)}
 
@@ -1033,11 +1033,11 @@ main{margin-left:200px;padding:40px 48px 80px;}
   ${section('sec-resumo', '📊', 'Quadro Resumo das Despesas', `
     ${summaryContent}
     ${otherFunding.length > 0 ? `
-    <h3 style="font-size:13px;font-weight:600;color:#8fa3b3;letter-spacing:0.06em;text-transform:uppercase;margin:24px 0 12px;">Outras Fontes de Financiamento</h3>
+    <h3 style="font-size:13px;font-weight:600;color:#6B7A8D;letter-spacing:0.06em;text-transform:uppercase;margin:24px 0 12px;">Outras Fontes de Financiamento</h3>
     ${wContent}` : ''}
   `)}
 
-  <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#3a5a72;margin-top:40px;padding-top:24px;border-top:1px solid #1e3a52;">
+  <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#C4BEB4;margin-top:40px;padding-top:24px;border-top:1px solid #DDD9D1;">
     Extraído em ${new Date().toLocaleString('pt-BR')} · Inovatus Extrator PTR-B
   </div>
 </main>
@@ -1097,13 +1097,28 @@ function processFile(file) {
           <span class="mv">${m.v}</span>
         </div>`).join('');
 
+      // Slug from project title: first 4 meaningful words, lowercase, hyphenated
+      const rawTitle = extracted.base['BASE.1 - TÍTULO'] || 'projeto';
+      const stopWords = new Set(['de','da','do','das','dos','e','a','o','as','os','em','por','para','com','um','uma','ao','na','no','nas','nos','se','que','ou']);
+      const slug = rawTitle
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, '')
+        .split(/\s+/)
+        .filter(w => w.length > 2 && !stopWords.has(w))
+        .slice(0, 4)
+        .join('-');
+      const baseName = 'PTRB_' + slug;
+
       // MD download
       const mdBlob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
       $('dl-md').href = URL.createObjectURL(mdBlob);
+      $('dl-md').download = baseName + '.md';
 
       // HTML download
       const htmlBlob = new Blob([html], { type: 'text/html;charset=utf-8' });
       $('dl-html').href = URL.createObjectURL(htmlBlob);
+      $('dl-html').download = baseName + '.html';
 
       // Preview
       $('md-preview').textContent = md;
