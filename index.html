@@ -73,17 +73,7 @@ function downloadFilteredMd() {
   closeMdModal();
 }
 
-$('dl-md').addEventListener('click', openMdModal);
-$('modal-cancel').addEventListener('click', closeMdModal);
-$('modal-confirm').addEventListener('click', downloadFilteredMd);
-$('md-modal').addEventListener('click', e => { if (e.target === $('md-modal')) closeMdModal(); });
-
-$('modal-select-all').addEventListener('click', () => {
-  const boxes = document.querySelectorAll('#modal-sections input[type=checkbox]');
-  const allChecked = [...boxes].every(b => b.checked);
-  boxes.forEach(b => b.checked = !allChecked);
-  $('modal-select-all').textContent = allChecked ? 'Selecionar tudo' : 'Desmarcar tudo';
-});
+// modal bindings registered after results render (see processFile)
 
 </script>
 <style>
@@ -1302,6 +1292,18 @@ function processFile(file) {
 
       hideStatus();
       $('results').style.display = 'block';
+
+      // Register modal bindings now that elements are visible
+      $('dl-md').onclick = openMdModal;
+      $('modal-cancel').onclick = closeMdModal;
+      $('modal-confirm').onclick = downloadFilteredMd;
+      $('md-modal').onclick = e => { if (e.target === $('md-modal')) closeMdModal(); };
+      $('modal-select-all').onclick = () => {
+        const boxes = document.querySelectorAll('#modal-sections input[type=checkbox]');
+        const allChecked = [...boxes].every(b => b.checked);
+        boxes.forEach(b => b.checked = !allChecked);
+        $('modal-select-all').textContent = allChecked ? 'Selecionar tudo' : 'Desmarcar tudo';
+      };
     } catch (err) {
       hideStatus();
       $('drop-section').style.display = 'block';
