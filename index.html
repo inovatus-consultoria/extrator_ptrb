@@ -4,78 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Extrator PTR-B · Inovatus</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
-// ═══════════════════════════════════════════════
-//  MD SECTION MODAL
-// ═══════════════════════════════════════════════
-const MD_SECTIONS = [
-  { key: 'identificacao', label: 'Identificação do Projeto',       icon: '📋' },
-  { key: 'institucional', label: 'Dados Institucionais',           icon: '🏛️' },
-  { key: 'tecnico',       label: 'Dados Técnicos',                 icon: '🔬' },
-  { key: 'atividades',    label: 'Atividades e Cronograma',        icon: '📅' },
-  { key: 'equipe',        label: 'Equipe Executora',               icon: '👥' },
-  { key: 'despesas',      label: 'Despesas por Categoria',         icon: '💰' },
-  { key: 'resumo',        label: 'Quadro Resumo das Despesas',     icon: '📊' },
-  { key: 'outras_fontes', label: 'Outras Fontes de Financiamento', icon: '🔗' },
-];
-
-function countSectionItems(key, ext) {
-  const d = ext;
-  switch(key) {
-    case 'identificacao': return Object.keys(d.base).filter(k => !k.startsWith('_')).length + ' campos';
-    case 'institucional': return (d.inst.proponents.length + d.inst.executors.length) + ' entidades';
-    case 'tecnico':       return Object.keys(d.tech.fields).length + ' campos' + (d.tech.results.length ? ` · ${d.tech.results.length} resultados` : '');
-    case 'atividades':    return d.activities.length + ' atividades';
-    case 'equipe':        return d.team.length + ' membros';
-    case 'despesas':      return d.expenses.length + ' categorias';
-    case 'resumo':        return d.summary.length + ' elementos';
-    case 'outras_fontes': return d.otherFunding.length + ' fontes';
-    default: return '';
-  }
-}
-
-function openMdModal() {
-  if (!window._ptrb) return;
-  const ext = window._ptrb.extracted;
-  const container = $('modal-sections');
-  container.innerHTML = '';
-  MD_SECTIONS.forEach(sec => {
-    const count = countSectionItems(sec.key, ext);
-    const label = document.createElement('label');
-    label.className = 'modal-check';
-    label.innerHTML = `
-      <input type="checkbox" name="sec" value="${sec.key}" checked>
-      <span class="chk-box"></span>
-      <span class="chk-label">${sec.icon} ${sec.label}</span>
-      <span class="chk-count">${count}</span>`;
-    container.appendChild(label);
-  });
-  $('md-modal').classList.add('open');
-}
-
-function closeMdModal() {
-  $('md-modal').classList.remove('open');
-}
-
-function downloadFilteredMd() {
-  if (!window._ptrb) return;
-  const checked = new Set(
-    [...document.querySelectorAll('#modal-sections input:checked')].map(i => i.value)
-  );
-  if (checked.size === 0) { alert('Selecione ao menos uma seção.'); return; }
-
-  const md = generateMarkdown(window._ptrb.extracted, checked);
-  const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = window._ptrb.baseName + '.md';
-  a.click();
-  closeMdModal();
-}
-
-// modal bindings registered after results render (see processFile)
-
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -1353,6 +1282,80 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     $('tab-' + tab).classList.add('active');
   });
 });
+
+
+// ═══════════════════════════════════════════════
+//  MD SECTION MODAL
+// ═══════════════════════════════════════════════
+// ═══════════════════════════════════════════════
+//  MD SECTION MODAL
+// ═══════════════════════════════════════════════
+const MD_SECTIONS = [
+  { key: 'identificacao', label: 'Identificação do Projeto',       icon: '📋' },
+  { key: 'institucional', label: 'Dados Institucionais',           icon: '🏛️' },
+  { key: 'tecnico',       label: 'Dados Técnicos',                 icon: '🔬' },
+  { key: 'atividades',    label: 'Atividades e Cronograma',        icon: '📅' },
+  { key: 'equipe',        label: 'Equipe Executora',               icon: '👥' },
+  { key: 'despesas',      label: 'Despesas por Categoria',         icon: '💰' },
+  { key: 'resumo',        label: 'Quadro Resumo das Despesas',     icon: '📊' },
+  { key: 'outras_fontes', label: 'Outras Fontes de Financiamento', icon: '🔗' },
+];
+
+function countSectionItems(key, ext) {
+  const d = ext;
+  switch(key) {
+    case 'identificacao': return Object.keys(d.base).filter(k => !k.startsWith('_')).length + ' campos';
+    case 'institucional': return (d.inst.proponents.length + d.inst.executors.length) + ' entidades';
+    case 'tecnico':       return Object.keys(d.tech.fields).length + ' campos' + (d.tech.results.length ? ` · ${d.tech.results.length} resultados` : '');
+    case 'atividades':    return d.activities.length + ' atividades';
+    case 'equipe':        return d.team.length + ' membros';
+    case 'despesas':      return d.expenses.length + ' categorias';
+    case 'resumo':        return d.summary.length + ' elementos';
+    case 'outras_fontes': return d.otherFunding.length + ' fontes';
+    default: return '';
+  }
+}
+
+function openMdModal() {
+  if (!window._ptrb) return;
+  const ext = window._ptrb.extracted;
+  const container = $('modal-sections');
+  container.innerHTML = '';
+  MD_SECTIONS.forEach(sec => {
+    const count = countSectionItems(sec.key, ext);
+    const label = document.createElement('label');
+    label.className = 'modal-check';
+    label.innerHTML = `
+      <input type="checkbox" name="sec" value="${sec.key}" checked>
+      <span class="chk-box"></span>
+      <span class="chk-label">${sec.icon} ${sec.label}</span>
+      <span class="chk-count">${count}</span>`;
+    container.appendChild(label);
+  });
+  $('md-modal').classList.add('open');
+}
+
+function closeMdModal() {
+  $('md-modal').classList.remove('open');
+}
+
+function downloadFilteredMd() {
+  if (!window._ptrb) return;
+  const checked = new Set(
+    [...document.querySelectorAll('#modal-sections input:checked')].map(i => i.value)
+  );
+  if (checked.size === 0) { alert('Selecione ao menos uma seção.'); return; }
+
+  const md = generateMarkdown(window._ptrb.extracted, checked);
+  const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = window._ptrb.baseName + '.md';
+  a.click();
+  closeMdModal();
+}
+
+// modal bindings registered after results render (see processFile)
 </script>
 </body>
 </html>
