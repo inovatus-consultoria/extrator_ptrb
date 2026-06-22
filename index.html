@@ -264,6 +264,14 @@
     margin-bottom: 10px; letter-spacing: 0.04em;
   }
   .modal-select-all:hover { text-decoration: underline; }
+  .modal-check-sub {
+    margin-left: 24px; border-style: dashed;
+    border-color: var(--border); background: var(--bg);
+  }
+  .modal-check-sub:hover { border-color: var(--amber); background: var(--amber-glow); }
+  .modal-check-group { font-weight: 600; }
+  .modal-sublist { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+  .modal-group-header { display: flex; flex-direction: column; gap: 4px; }
 </style>
 </head>
 <body>
@@ -725,7 +733,7 @@ function extractPTRB(wb) {
 // ═══════════════════════════════════════════════
 //  MARKDOWN GENERATOR
 // ═══════════════════════════════════════════════
-function generateMarkdown(d, sel) {
+function generateMarkdown(d, sel, despLetters) {
   // sel = Set of section keys to include; if undefined/null = include all
   const inc = key => !sel || sel.has(key);
   const lines = [];
@@ -734,7 +742,8 @@ function generateMarkdown(d, sel) {
   lines.push(`# PTR-B — Contexto do Projeto para Análise`);
   lines.push(`> Documento gerado automaticamente pelo Extrator PTR-B (Inovatus). Contém os dados oficiais extraídos das abas de entrada do formulário PTR-B.`);
   if (sel && sel.size < 8) {
-    const labels = [...sel].map(k => ({ identificacao:'Identificação', institucional:'Dados Institucionais', tecnico:'Dados Técnicos', atividades:'Atividades', equipe:'Equipe', despesas:'Despesas', resumo:'Quadro Resumo', outras_fontes:'Outras Fontes' }[k] || k));
+    const labels = [...sel].filter(k => !k.startsWith('desp_')).map(k => ({ identificacao:'Identificação', institucional:'Dados Institucionais', tecnico:'Dados Técnicos', atividades:'Atividades', equipe:'Equipe', despesas:'Despesas', resumo:'Quadro Resumo', outras_fontes:'Outras Fontes' }[k] || k));
+    if (despLetters && despLetters.size > 0) labels.push('Despesas (' + [...despLetters].join(', ') + ')');
     lines.push(`> **Seções incluídas:** ${labels.join(' · ')}`);
   }
   lines.push('');
@@ -836,10 +845,14 @@ function generateMarkdown(d, sel) {
 
   // ── 6. DESPESAS ──
   if (inc('despesas')) {
-    lines.push(`## 6. Despesas por Categoria`);
-    lines.push('');
-    if (expenses.length > 0) {
-      expenses.forEach(cat => {
+    // Filter by individual letters if despLetters is provided
+    const visibleExp = (despLetters && despLetters.size > 0)
+      ? expenses.filter(cat => despLetters.has(cat.letter))
+      : expenses;
+    if (visibleExp.length > 0) {
+      lines.push(`## 6. Despesas por Categoria`);
+      lines.push('');
+      visibleExp.forEach(cat => {
         lines.push(`### ${cat.letter}. ${cat.category}`);
         lines.push('');
         if (cat.rows.length === 0) {
@@ -854,9 +867,6 @@ function generateMarkdown(d, sel) {
         }
         lines.push('');
       });
-    } else {
-      lines.push('_Nenhuma categoria de despesa preenchida._');
-      lines.push('');
     }
   }
 
@@ -1230,7 +1240,7 @@ function processFile(file) {
       $('modal-select-all').onclick = () => {
         const boxes = document.querySelectorAll('#modal-sections input[type=checkbox]');
         const allChecked = [...boxes].every(b => b.checked);
-        boxes.forEach(b => b.checked = !allChecked);
+        boxes.forEach(b => { b.checked = !allChecked; b.indeterminate = false; });
         $('modal-select-all').textContent = allChecked ? 'Selecionar tudo' : 'Desmarcar tudo';
       };
     } catch (err) {
@@ -1296,24 +1306,20 @@ const MD_SECTIONS = [
   { key: 'tecnico',       label: 'Dados Técnicos',                 icon: '🔬' },
   { key: 'atividades',    label: 'Atividades e Cronograma',        icon: '📅' },
   { key: 'equipe',        label: 'Equipe Executora',               icon: '👥' },
-  { key: 'despesas',      label: 'Despesas por Categoria',         icon: '💰' },
+  // 'despesas' is expanded per-category dynamically
   { key: 'resumo',        label: 'Quadro Resumo das Despesas',     icon: '📊' },
   { key: 'outras_fontes', label: 'Outras Fontes de Financiamento', icon: '🔗' },
 ];
 
-function countSectionItems(key, ext) {
-  const d = ext;
-  switch(key) {
-    case 'identificacao': return Object.keys(d.base).filter(k => !k.startsWith('_')).length + ' campos';
-    case 'institucional': return (d.inst.proponents.length + d.inst.executors.length) + ' entidades';
-    case 'tecnico':       return Object.keys(d.tech.fields).length + ' campos' + (d.tech.results.length ? ` · ${d.tech.results.length} resultados` : '');
-    case 'atividades':    return d.activities.length + ' atividades';
-    case 'equipe':        return d.team.length + ' membros';
-    case 'despesas':      return d.expenses.length + ' categorias';
-    case 'resumo':        return d.summary.length + ' elementos';
-    case 'outras_fontes': return d.otherFunding.length + ' fontes';
-    default: return '';
-  }
+function makeCheckRow(value, icon, labelText, count, indent) {
+  const wrap = document.createElement('label');
+  wrap.className = 'modal-check' + (indent ? ' modal-check-sub' : '');
+  wrap.innerHTML = `
+    <input type="checkbox" name="sec" value="${value}" checked>
+    <span class="chk-box"></span>
+    <span class="chk-label">${icon} ${labelText}</span>
+    <span class="chk-count">${count}</span>`;
+  return wrap;
 }
 
 function openMdModal() {
@@ -1321,17 +1327,65 @@ function openMdModal() {
   const ext = window._ptrb.extracted;
   const container = $('modal-sections');
   container.innerHTML = '';
-  MD_SECTIONS.forEach(sec => {
-    const count = countSectionItems(sec.key, ext);
-    const label = document.createElement('label');
-    label.className = 'modal-check';
-    label.innerHTML = `
-      <input type="checkbox" name="sec" value="${sec.key}" checked>
-      <span class="chk-box"></span>
-      <span class="chk-label">${sec.icon} ${sec.label}</span>
-      <span class="chk-count">${count}</span>`;
-    container.appendChild(label);
+
+  // Top sections before despesas
+  const topSections = MD_SECTIONS.slice(0, 5);
+  topSections.forEach(sec => {
+    const countMap = {
+      identificacao: Object.keys(ext.base).filter(k => !k.startsWith('_')).length + ' campos',
+      institucional: (ext.inst.proponents.length + ext.inst.executors.length) + ' entidades',
+      tecnico:       Object.keys(ext.tech.fields).length + ' campos' + (ext.tech.results.length ? ' · ' + ext.tech.results.length + ' resultados' : ''),
+      atividades:    ext.activities.length + ' atividades',
+      equipe:        ext.team.length + ' membros',
+    };
+    container.appendChild(makeCheckRow(sec.key, sec.icon, sec.label, countMap[sec.key] || '', false));
   });
+
+  // Despesas group header (master checkbox)
+  if (ext.expenses.length > 0) {
+    const groupHeader = document.createElement('div');
+    groupHeader.className = 'modal-group-header';
+
+    const masterLabel = document.createElement('label');
+    masterLabel.className = 'modal-check modal-check-group';
+    masterLabel.innerHTML = `
+      <input type="checkbox" id="desp-master" checked>
+      <span class="chk-box"></span>
+      <span class="chk-label">💰 Despesas por Categoria</span>
+      <span class="chk-count">${ext.expenses.length} categorias</span>`;
+    groupHeader.appendChild(masterLabel);
+
+    const subList = document.createElement('div');
+    subList.className = 'modal-sublist';
+    ext.expenses.forEach(cat => {
+      const row = makeCheckRow('desp_' + cat.letter, '', cat.letter + '. ' + cat.category, cat.rows.length + ' itens', true);
+      subList.appendChild(row);
+    });
+    groupHeader.appendChild(subList);
+    container.appendChild(groupHeader);
+
+    // Master checkbox toggles all sub-checkboxes
+    const master = masterLabel.querySelector('input');
+    master.addEventListener('change', () => {
+      subList.querySelectorAll('input').forEach(cb => cb.checked = master.checked);
+    });
+    // If any sub unchecked, uncheck master
+    subList.addEventListener('change', () => {
+      const subs = [...subList.querySelectorAll('input')];
+      master.checked = subs.every(s => s.checked);
+      master.indeterminate = !master.checked && subs.some(s => s.checked);
+    });
+  }
+
+  // Bottom sections after despesas
+  MD_SECTIONS.slice(5).forEach(sec => {
+    const countMap = {
+      resumo:        ext.summary.length + ' elementos',
+      outras_fontes: ext.otherFunding.length + ' fontes',
+    };
+    container.appendChild(makeCheckRow(sec.key, sec.icon, sec.label, countMap[sec.key] || '', false));
+  });
+
   $('md-modal').classList.add('open');
 }
 
@@ -1341,12 +1395,16 @@ function closeMdModal() {
 
 function downloadFilteredMd() {
   if (!window._ptrb) return;
-  const checked = new Set(
-    [...document.querySelectorAll('#modal-sections input:checked')].map(i => i.value)
-  );
-  if (checked.size === 0) { alert('Selecione ao menos uma seção.'); return; }
+  const allChecked = [...document.querySelectorAll('#modal-sections input[name="sec"]:checked')].map(i => i.value);
+  if (allChecked.length === 0) { alert('Selecione ao menos uma seção.'); return; }
 
-  const md = generateMarkdown(window._ptrb.extracted, checked);
+  // Build sel set: top-level keys + individual desp_X keys
+  const sel = new Set(allChecked);
+  // If any desp_X selected, signal 'despesas' is partially included
+  const despLetters = new Set([...sel].filter(k => k.startsWith('desp_')).map(k => k.replace('desp_', '')));
+  if (despLetters.size > 0) sel.add('despesas');
+
+  const md = generateMarkdown(window._ptrb.extracted, sel, despLetters);
   const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
