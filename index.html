@@ -4,7 +4,88 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Extrator PTR-B · Inovatus</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
+// ═══════════════════════════════════════════════
+//  MD SECTION MODAL
+// ═══════════════════════════════════════════════
+const MD_SECTIONS = [
+  { key: 'identificacao', label: 'Identificação do Projeto',       icon: '📋' },
+  { key: 'institucional', label: 'Dados Institucionais',           icon: '🏛️' },
+  { key: 'tecnico',       label: 'Dados Técnicos',                 icon: '🔬' },
+  { key: 'atividades',    label: 'Atividades e Cronograma',        icon: '📅' },
+  { key: 'equipe',        label: 'Equipe Executora',               icon: '👥' },
+  { key: 'despesas',      label: 'Despesas por Categoria',         icon: '💰' },
+  { key: 'resumo',        label: 'Quadro Resumo das Despesas',     icon: '📊' },
+  { key: 'outras_fontes', label: 'Outras Fontes de Financiamento', icon: '🔗' },
+];
+
+function countSectionItems(key, ext) {
+  const d = ext;
+  switch(key) {
+    case 'identificacao': return Object.keys(d.base).filter(k => !k.startsWith('_')).length + ' campos';
+    case 'institucional': return (d.inst.proponents.length + d.inst.executors.length) + ' entidades';
+    case 'tecnico':       return Object.keys(d.tech.fields).length + ' campos' + (d.tech.results.length ? ` · ${d.tech.results.length} resultados` : '');
+    case 'atividades':    return d.activities.length + ' atividades';
+    case 'equipe':        return d.team.length + ' membros';
+    case 'despesas':      return d.expenses.length + ' categorias';
+    case 'resumo':        return d.summary.length + ' elementos';
+    case 'outras_fontes': return d.otherFunding.length + ' fontes';
+    default: return '';
+  }
+}
+
+function openMdModal() {
+  if (!window._ptrb) return;
+  const ext = window._ptrb.extracted;
+  const container = $('modal-sections');
+  container.innerHTML = '';
+  MD_SECTIONS.forEach(sec => {
+    const count = countSectionItems(sec.key, ext);
+    const label = document.createElement('label');
+    label.className = 'modal-check';
+    label.innerHTML = `
+      <input type="checkbox" name="sec" value="${sec.key}" checked>
+      <span class="chk-box"></span>
+      <span class="chk-label">${sec.icon} ${sec.label}</span>
+      <span class="chk-count">${count}</span>`;
+    container.appendChild(label);
+  });
+  $('md-modal').classList.add('open');
+}
+
+function closeMdModal() {
+  $('md-modal').classList.remove('open');
+}
+
+function downloadFilteredMd() {
+  if (!window._ptrb) return;
+  const checked = new Set(
+    [...document.querySelectorAll('#modal-sections input:checked')].map(i => i.value)
+  );
+  if (checked.size === 0) { alert('Selecione ao menos uma seção.'); return; }
+
+  const md = generateMarkdown(window._ptrb.extracted, checked);
+  const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = window._ptrb.baseName + '.md';
+  a.click();
+  closeMdModal();
+}
+
+$('dl-md').addEventListener('click', openMdModal);
+$('modal-cancel').addEventListener('click', closeMdModal);
+$('modal-confirm').addEventListener('click', downloadFilteredMd);
+$('md-modal').addEventListener('click', e => { if (e.target === $('md-modal')) closeMdModal(); });
+
+$('modal-select-all').addEventListener('click', () => {
+  const boxes = document.querySelectorAll('#modal-sections input[type=checkbox]');
+  const allChecked = [...boxes].every(b => b.checked);
+  boxes.forEach(b => b.checked = !allChecked);
+  $('modal-select-all').textContent = allChecked ? 'Selecionar tudo' : 'Desmarcar tudo';
+});
+
+</script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
 
@@ -198,6 +279,72 @@
     border-radius: 8px; padding: 16px 20px; color: var(--red);
     font-family: var(--mono); font-size: 13px; margin-bottom: 24px;
   }
+
+  /* ── MODAL ── */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(26,35,50,0.45); backdrop-filter: blur(3px);
+    z-index: 200; align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #FFFFFF; border: 1px solid var(--border);
+    border-radius: 12px; padding: 32px; width: 460px; max-width: 90vw;
+    box-shadow: 0 8px 40px rgba(26,35,50,0.18);
+  }
+  .modal-title {
+    font-size: 15px; font-weight: 700; color: var(--text);
+    margin-bottom: 4px;
+  }
+  .modal-sub {
+    font-family: var(--mono); font-size: 11px; color: var(--text-muted);
+    margin-bottom: 20px; letter-spacing: 0.04em;
+  }
+  .modal-sections {
+    display: flex; flex-direction: column; gap: 6px; margin-bottom: 24px;
+  }
+  .modal-check {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; border-radius: 6px; cursor: pointer;
+    border: 1px solid var(--border); transition: border-color 0.15s, background 0.15s;
+    user-select: none;
+  }
+  .modal-check:hover { border-color: var(--amber); background: var(--amber-glow); }
+  .modal-check input[type=checkbox] { display: none; }
+  .modal-check .chk-box {
+    width: 16px; height: 16px; border: 2px solid var(--border-strong);
+    border-radius: 3px; flex-shrink: 0; display: flex;
+    align-items: center; justify-content: center; transition: all 0.15s;
+  }
+  .modal-check input:checked ~ .chk-box {
+    background: var(--amber); border-color: var(--amber);
+  }
+  .modal-check input:checked ~ .chk-box::after {
+    content: ''; display: block; width: 5px; height: 9px;
+    border: 2px solid white; border-top: none; border-left: none;
+    transform: rotate(45deg) translate(-1px, -1px);
+  }
+  .modal-check .chk-label { font-size: 13px; color: var(--text); font-weight: 500; }
+  .modal-check .chk-count { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-left: auto; }
+  .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
+  .modal-btn-cancel {
+    padding: 10px 18px; border-radius: 6px; border: 1px solid var(--border);
+    background: none; color: var(--text-muted); font-family: var(--mono);
+    font-size: 12px; cursor: pointer; transition: all 0.15s;
+  }
+  .modal-btn-cancel:hover { border-color: var(--border-strong); color: var(--text); }
+  .modal-btn-confirm {
+    padding: 10px 20px; border-radius: 6px; border: none;
+    background: var(--amber); color: white; font-family: var(--mono);
+    font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+  }
+  .modal-btn-confirm:hover { background: var(--amber-soft); }
+  .modal-select-all {
+    font-family: var(--mono); font-size: 11px; color: var(--amber);
+    background: none; border: none; cursor: pointer; padding: 0;
+    margin-bottom: 10px; letter-spacing: 0.04em;
+  }
+  .modal-select-all:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -257,10 +404,10 @@
     </div>
 
     <div class="dl-row">
-      <a class="dl-btn dl-btn-md" id="dl-md" href="#" download="projeto_contexto.md">
+      <button class="dl-btn dl-btn-md" id="dl-md">
         <svg viewBox="0 0 16 16" fill="currentColor"><path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/></svg>
         Baixar Markdown
-      </a>
+      </button>
       <a class="dl-btn dl-btn-html" id="dl-html" href="#" download="projeto_resumo.html">
         <svg viewBox="0 0 16 16" fill="currentColor"><path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/><path d="M8.646 6.646a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L10.293 9 8.646 7.354a.5.5 0 0 1 0-.708zm-1.292 0a.5.5 0 0 0-.708 0l-2 2a.5.5 0 0 0 0 .708l2 2a.5.5 0 0 0 .708-.708L5.707 9l1.647-1.646a.5.5 0 0 0 0-.708z"/></svg>
         Baixar Dashboard HTML
@@ -279,6 +426,20 @@
     </div>
   </div>
 
+
+<!-- MD SECTION MODAL -->
+<div class="modal-overlay" id="md-modal">
+  <div class="modal">
+    <div class="modal-title">Selecionar seções para o Markdown</div>
+    <div class="modal-sub">Escolha o que deseja incluir no arquivo gerado</div>
+    <button class="modal-select-all" id="modal-select-all">Selecionar tudo</button>
+    <div class="modal-sections" id="modal-sections"></div>
+    <div class="modal-actions">
+      <button class="modal-btn-cancel" id="modal-cancel">Cancelar</button>
+      <button class="modal-btn-confirm" id="modal-confirm">Baixar Markdown</button>
+    </div>
+  </div>
+</div>
 </main>
 
 <script>
@@ -645,127 +806,143 @@ function extractPTRB(wb) {
 // ═══════════════════════════════════════════════
 //  MARKDOWN GENERATOR
 // ═══════════════════════════════════════════════
-function generateMarkdown(d) {
+function generateMarkdown(d, sel) {
+  // sel = Set of section keys to include; if undefined/null = include all
+  const inc = key => !sel || sel.has(key);
   const lines = [];
   const { base, inst, tech, activities, team, expenses, otherFunding, summary, totalProject } = d;
 
   lines.push(`# PTR-B — Contexto do Projeto para Análise`);
   lines.push(`> Documento gerado automaticamente pelo Extrator PTR-B (Inovatus). Contém os dados oficiais extraídos das abas de entrada do formulário PTR-B.`);
+  if (sel && sel.size < 8) {
+    const labels = [...sel].map(k => ({ identificacao:'Identificação', institucional:'Dados Institucionais', tecnico:'Dados Técnicos', atividades:'Atividades', equipe:'Equipe', despesas:'Despesas', resumo:'Quadro Resumo', outras_fontes:'Outras Fontes' }[k] || k));
+    lines.push(`> **Seções incluídas:** ${labels.join(' · ')}`);
+  }
   lines.push('');
 
   // ── 1. IDENTIFICAÇÃO ──
-  lines.push(`## 1. Identificação do Projeto`);
-  lines.push('');
-  Object.entries(base).forEach(([k, v]) => {
-    if (k.startsWith('_')) return;
-    lines.push(`**${k}:** ${v}`);
-  });
-  lines.push('');
-
-  if (base._annexes && base._annexes.length > 0) {
-    lines.push(`### Anexos declarados`);
-    base._annexes.forEach(a => lines.push(`- \`${a.file}\` — ${a.desc}`));
+  if (inc('identificacao')) {
+    lines.push(`## 1. Identificação do Projeto`);
     lines.push('');
+    Object.entries(base).forEach(([k, v]) => {
+      if (k.startsWith('_')) return;
+      lines.push(`**${k}:** ${v}`);
+    });
+    lines.push('');
+    if (base._annexes && base._annexes.length > 0) {
+      lines.push(`### Anexos declarados`);
+      base._annexes.forEach(a => lines.push(`- \`${a.file}\` — ${a.desc}`));
+      lines.push('');
+    }
   }
 
   // ── 2. DADOS INSTITUCIONAIS ──
-  lines.push(`## 2. Dados Institucionais`);
-  lines.push('');
-  if (inst.proponents.length > 0) {
-    lines.push(`### Proponentes`);
+  if (inc('institucional')) {
+    lines.push(`## 2. Dados Institucionais`);
     lines.push('');
-    lines.push(`| Razão Social | CNPJ | % dos Recursos |`);
-    lines.push(`|---|---|---|`);
-    inst.proponents.forEach(p => lines.push(`| ${p.razaoSocial} | ${p.cnpj} | ${p.pct} |`));
-    lines.push('');
-  }
-  if (inst.executors.length > 0) {
-    lines.push(`### Executores`);
-    lines.push('');
-    inst.executors.forEach((e, i) => {
-      lines.push(`**Executor ${i + 1}:** ${e.razaoSocial}`);
-      Object.entries(e).forEach(([k, v]) => {
-        if (k === 'razaoSocial' || v === '—') return;
-        lines.push(`  - ${k}: ${v}`);
+    if (inst.proponents.length > 0) {
+      lines.push(`### Proponentes`);
+      lines.push('');
+      lines.push(`| Razão Social | CNPJ | % dos Recursos |`);
+      lines.push(`|---|---|---|`);
+      inst.proponents.forEach(p => lines.push(`| ${p.razaoSocial} | ${p.cnpj} | ${p.pct} |`));
+      lines.push('');
+    }
+    if (inst.executors.length > 0) {
+      lines.push(`### Executores`);
+      lines.push('');
+      inst.executors.forEach((e, i) => {
+        lines.push(`**Executor ${i + 1}:** ${e.razaoSocial}`);
+        Object.entries(e).forEach(([k, v]) => {
+          if (k === 'razaoSocial' || v === '—') return;
+          lines.push(`  - ${k}: ${v}`);
+        });
       });
-    });
-    lines.push('');
+      lines.push('');
+    }
   }
 
   // ── 3. DADOS TÉCNICOS ──
-  lines.push(`## 3. Dados Técnicos`);
-  lines.push('');
-  Object.entries(tech.fields).forEach(([k, v]) => {
-    lines.push(`**${k}:** ${v}`);
-  });
-  if (tech.keywords.length > 0) {
+  if (inc('tecnico')) {
+    lines.push(`## 3. Dados Técnicos`);
     lines.push('');
-    lines.push(`**Palavras-chave:** ${tech.keywords.join(' · ')}`);
-  }
-  lines.push('');
-
-  if (tech.results.length > 0) {
-    lines.push(`### Resultados Esperados`);
+    Object.entries(tech.fields).forEach(([k, v]) => {
+      lines.push(`**${k}:** ${v}`);
+    });
+    if (tech.keywords.length > 0) {
+      lines.push('');
+      lines.push(`**Palavras-chave:** ${tech.keywords.join(' · ')}`);
+    }
     lines.push('');
-    lines.push(`| # | Descrição | Tipo | ODS |`);
-    lines.push(`|---|---|---|---|`);
-    tech.results.forEach((r, i) => lines.push(`| ${i + 1} | ${r.desc} | ${r.tipo} | ${r.ods} |`));
-    lines.push('');
+    if (tech.results.length > 0) {
+      lines.push(`### Resultados Esperados`);
+      lines.push('');
+      lines.push(`| # | Descrição | Tipo | ODS |`);
+      lines.push(`|---|---|---|---|`);
+      tech.results.forEach((r, i) => lines.push(`| ${i + 1} | ${r.desc} | ${r.tipo} | ${r.ods} |`));
+      lines.push('');
+    }
   }
 
   // ── 4. ATIVIDADES ──
-  lines.push(`## 4. Atividades e Cronograma`);
-  lines.push('');
-  if (activities.length > 0) {
-    lines.push(`| Atividade | Descrição | Início (mês) | Fim (mês) |`);
-    lines.push(`|---|---|---|---|`);
-    activities.forEach(a => lines.push(`| ${a.id} | ${a.desc} | ${a.inicio} | ${a.fim} |`));
-  } else {
-    lines.push('_Nenhuma atividade preenchida._');
-  }
-  lines.push('');
-
-  // ── 5. EQUIPE ──
-  lines.push(`## 5. Equipe Executora`);
-  lines.push('');
-  if (team.length > 0) {
-    lines.push(`| Nome / Identificação | Função | Formação | Período (meses) | Atividades |`);
-    lines.push(`|---|---|---|---|---|`);
-    team.forEach(m => {
-      const acts = m.atividades.length > 0 ? m.atividades.join(', ') : '—';
-      lines.push(`| ${m.nome} | ${m.funcao} | ${m.formacao} | ${m.meses} | ${acts} |`);
-    });
-  } else {
-    lines.push('_Nenhum membro cadastrado._');
-  }
-  lines.push('');
-
-  // ── 6. DESPESAS ──
-  lines.push(`## 6. Despesas por Categoria`);
-  lines.push('');
-  if (expenses.length > 0) {
-    expenses.forEach(cat => {
-      lines.push(`### ${cat.letter}. ${cat.category}`);
-      lines.push('');
-      if (cat.rows.length === 0) {
-        lines.push('_Sem itens preenchidos._');
-      } else {
-        const cols = [...new Set(cat.rows.flatMap(r => Object.keys(r)))];
-        lines.push(`| ${cols.join(' | ')} |`);
-        lines.push(`|${cols.map(() => '---').join('|')}|`);
-        cat.rows.forEach(row => {
-          lines.push(`| ${cols.map(c => (row[c] || '—').replace(/\|/g, '&#124;')) .join(' | ')} |`);
-        });
-      }
-      lines.push('');
-    });
-  } else {
-    lines.push('_Nenhuma categoria de despesa preenchida._');
+  if (inc('atividades')) {
+    lines.push(`## 4. Atividades e Cronograma`);
+    lines.push('');
+    if (activities.length > 0) {
+      lines.push(`| Atividade | Descrição | Início (mês) | Fim (mês) |`);
+      lines.push(`|---|---|---|---|`);
+      activities.forEach(a => lines.push(`| ${a.id} | ${a.desc} | ${a.inicio} | ${a.fim} |`));
+    } else {
+      lines.push('_Nenhuma atividade preenchida._');
+    }
     lines.push('');
   }
 
+  // ── 5. EQUIPE ──
+  if (inc('equipe')) {
+    lines.push(`## 5. Equipe Executora`);
+    lines.push('');
+    if (team.length > 0) {
+      lines.push(`| Nome / Identificação | Função | Formação | Período (meses) | Atividades |`);
+      lines.push(`|---|---|---|---|---|`);
+      team.forEach(m => {
+        const acts = m.atividades.length > 0 ? m.atividades.join(', ') : '—';
+        lines.push(`| ${m.nome} | ${m.funcao} | ${m.formacao} | ${m.meses} | ${acts} |`);
+      });
+    } else {
+      lines.push('_Nenhum membro cadastrado._');
+    }
+    lines.push('');
+  }
+
+  // ── 6. DESPESAS ──
+  if (inc('despesas')) {
+    lines.push(`## 6. Despesas por Categoria`);
+    lines.push('');
+    if (expenses.length > 0) {
+      expenses.forEach(cat => {
+        lines.push(`### ${cat.letter}. ${cat.category}`);
+        lines.push('');
+        if (cat.rows.length === 0) {
+          lines.push('_Sem itens preenchidos._');
+        } else {
+          const cols = [...new Set(cat.rows.flatMap(r => Object.keys(r)))];
+          lines.push(`| ${cols.join(' | ')} |`);
+          lines.push(`|${cols.map(() => '---').join('|')}|`);
+          cat.rows.forEach(row => {
+            lines.push(`| ${cols.map(c => (row[c] || '—').replace(/\|/g, '&#124;')).join(' | ')} |`);
+          });
+        }
+        lines.push('');
+      });
+    } else {
+      lines.push('_Nenhuma categoria de despesa preenchida._');
+      lines.push('');
+    }
+  }
+
   // ── 7. QUADRO RESUMO ──
-  if (summary.length > 0) {
+  if (inc('resumo') && summary.length > 0) {
     lines.push(`## 7. Quadro Resumo das Despesas`);
     lines.push('');
     lines.push(`| Elemento de Despesa | Valor (R$) |`);
@@ -778,7 +955,7 @@ function generateMarkdown(d) {
   }
 
   // ── 8. OUTRAS FONTES ──
-  if (otherFunding.length > 0) {
+  if (inc('outras_fontes') && otherFunding.length > 0) {
     lines.push(`## 8. Outras Fontes de Financiamento`);
     lines.push('');
     lines.push(`| Fonte | Observações | Valor |`);
@@ -1074,11 +1251,11 @@ function processFile(file) {
       const data = new Uint8Array(e.target.result);
       const wb = XLSX.read(data, { type: 'array', cellDates: true });
 
-      showStatus('Gerando Markdown...');
+      showStatus('Extraindo dados...');
       const extracted = extractPTRB(wb);
 
       showStatus('Gerando dashboard HTML...');
-      const md = generateMarkdown(extracted);
+      const md = generateMarkdown(extracted, null); // null = all sections for preview
       const html = generateHTML(extracted);
 
       // Update UI
@@ -1110,10 +1287,8 @@ function processFile(file) {
         .join('-');
       const baseName = 'PTRB_' + slug;
 
-      // MD download
-      const mdBlob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
-      $('dl-md').href = URL.createObjectURL(mdBlob);
-      $('dl-md').download = baseName + '.md';
+      // Store extracted data and baseName globally for modal use
+      window._ptrb = { extracted, md, baseName };
 
       // HTML download
       const htmlBlob = new Blob([html], { type: 'text/html;charset=utf-8' });
