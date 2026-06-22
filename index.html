@@ -209,6 +209,7 @@
   .modal {
     background: #FFFFFF; border: 1px solid var(--border);
     border-radius: 12px; padding: 32px; width: 460px; max-width: 90vw;
+    max-height: 90vh; display: flex; flex-direction: column;
     box-shadow: 0 8px 40px rgba(26,35,50,0.18);
   }
   .modal-title {
@@ -221,7 +222,11 @@
   }
   .modal-sections {
     display: flex; flex-direction: column; gap: 6px; margin-bottom: 24px;
+    overflow-y: auto; flex: 1; padding-right: 4px;
   }
+  .modal-sections::-webkit-scrollbar { width: 4px; }
+  .modal-sections::-webkit-scrollbar-track { background: var(--bg); }
+  .modal-sections::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 2px; }
   .modal-check {
     display: flex; align-items: center; gap: 10px;
     padding: 10px 12px; border-radius: 6px; cursor: pointer;
