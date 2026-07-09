@@ -3,26 +3,30 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Extrator PTR-B · Inovatus</title>
+<title>Extrator PTR-B / REF-RTC · Inovatus</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600;700&display=swap');
 
   :root {
-    --bg: #F7F6F3;
+    --bg: #F4F6F5;
     --surface: #FFFFFF;
-    --surface-alt: #F0EEE9;
-    --amber: #C47E10;
-    --amber-soft: #E8A020;
-    --amber-glow: rgba(196,126,16,0.10);
-    --text: #1A2332;
-    --text-muted: #6B7A8D;
-    --border: #DDD9D1;
-    --border-strong: #C4BEB4;
-    --green: #1E7A4A;
-    --red: #B03030;
-    --mono: 'IBM Plex Mono', monospace;
-    --sans: 'Inter', sans-serif;
+    --surface-alt: #EAF0EE;
+    --accent: #2D5C4E;
+    --accent-soft: #1E4035;
+    --accent2: #3A8C7A;
+    --accent-glow: #E8F2EF;
+    --gold: #B8963C;
+    --gold-glow: #FBF5E8;
+    --text: #1A2420;
+    --text-muted: #4A6058;
+    --text-faint: #8AA09A;
+    --border: #D0DDD8;
+    --border-strong: #B7C7C1;
+    --red: #C83A3A;
+    --red-glow: #FBF0EF;
+    --serif: 'DM Serif Display', serif;
+    --sans: 'DM Sans', sans-serif;
   }
 
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -35,6 +39,10 @@
     line-height: 1.6;
   }
 
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
   /* ── HEADER ── */
   header {
     border-bottom: 1px solid var(--border);
@@ -42,41 +50,70 @@
     display: flex;
     align-items: center;
     gap: 16px;
-    background: rgba(247,246,243,0.96);
+    background: rgba(244,246,245,0.96);
     position: sticky;
     top: 0;
     z-index: 100;
     backdrop-filter: blur(8px);
   }
   .logo-mark {
-    width: 32px; height: 32px;
-    background: var(--amber);
+    width: 30px; height: 30px;
+    background: var(--accent);
     clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
     flex-shrink: 0;
   }
-  .logo-text { font-family: var(--mono); font-size: 13px; font-weight: 600; letter-spacing: 0.08em; color: var(--text-muted); }
-  .logo-text strong { color: var(--text); }
+  .logo-text { font-family: var(--sans); font-size: 13px; font-weight: 600; letter-spacing: 0.04em; color: var(--text-muted); }
+  .logo-text strong { color: var(--text); font-family: var(--serif); font-weight: 400; font-size: 15px; }
   header .spacer { flex: 1; }
   .header-tag {
-    font-family: var(--mono); font-size: 11px; color: var(--amber);
-    background: var(--amber-glow); border: 1px solid rgba(196,126,16,0.25);
-    padding: 3px 10px; border-radius: 3px; letter-spacing: 0.06em;
+    font-family: var(--sans); font-size: 11px; font-weight: 600; color: var(--accent);
+    background: var(--accent-glow); border: 1px solid var(--border);
+    padding: 4px 12px; border-radius: 99px; letter-spacing: 0.05em; text-transform: uppercase;
   }
 
   /* ── MAIN ── */
-  main { max-width: 900px; margin: 0 auto; padding: 60px 40px 100px; }
+  main { max-width: 880px; margin: 0 auto; padding: 60px 40px 100px; }
+
+  /* ── TYPE SELECTOR ── */
+  .type-section { text-align: center; padding: 20px 0 60px; }
+  .type-eyebrow {
+    font-family: var(--sans); font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+    color: var(--accent); text-transform: uppercase; margin-bottom: 18px;
+  }
+  .type-title { font-family: var(--serif); font-size: 30px; font-weight: 400; color: var(--text); line-height: 1.3; margin-bottom: 12px; }
+  .type-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 40px; }
+  .type-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 640px) { .type-cards { grid-template-columns: 1fr; } }
+  .type-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 28px 24px; cursor: pointer; text-align: left;
+    transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+    box-shadow: 0 2px 16px rgba(26,36,32,0.06);
+  }
+  .type-card:hover { border-color: var(--accent); box-shadow: 0 6px 24px rgba(26,36,32,0.1); transform: translateY(-2px); }
+  .type-card .tc-icon { width: 36px; height: 36px; margin-bottom: 16px; color: var(--accent); }
+  .type-card .tc-icon svg { width: 100%; height: 100%; }
+  .type-card .tc-name { font-family: var(--serif); font-size: 20px; font-weight: 400; color: var(--text); margin-bottom: 6px; }
+  .type-card .tc-desc { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
 
   /* ── DROP ZONE ── */
   .drop-section { text-align: center; padding: 20px 0 60px; }
-  .drop-eyebrow {
-    font-family: var(--mono); font-size: 11px; letter-spacing: 0.15em;
-    color: var(--amber); text-transform: uppercase; margin-bottom: 20px;
+  .type-badge-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 18px; }
+  .type-current-badge {
+    font-family: var(--sans); font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+    color: var(--accent); background: var(--accent-glow); border: 1px solid var(--border);
+    padding: 4px 12px; border-radius: 99px; text-transform: uppercase;
   }
+  .type-switch-link {
+    font-family: var(--sans); font-size: 12px; color: var(--text-muted);
+    background: none; border: none; cursor: pointer; text-decoration: underline;
+  }
+  .type-switch-link:hover { color: var(--accent); }
   .drop-title {
-    font-size: 28px; font-weight: 700; color: var(--text);
+    font-family: var(--serif); font-size: 28px; font-weight: 400; color: var(--text);
     line-height: 1.3; margin-bottom: 10px;
   }
-  .drop-sub { font-size: 15px; color: var(--text-muted); margin-bottom: 40px; }
+  .drop-sub { font-size: 14px; color: var(--text-muted); margin-bottom: 40px; }
 
   .drop-zone {
     border: 2px dashed var(--border-strong);
@@ -88,8 +125,8 @@
     background: var(--surface);
   }
   .drop-zone:hover, .drop-zone.dragover {
-    border-color: var(--amber);
-    background: var(--amber-glow);
+    border-color: var(--accent);
+    background: var(--accent-glow);
   }
   .drop-zone input[type=file] {
     position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
@@ -100,21 +137,21 @@
   }
   .drop-icon svg { width: 48px; height: 48px; }
   .drop-label { font-size: 15px; color: var(--text-muted); }
-  .drop-label strong { color: var(--amber); }
-  .drop-hint { font-family: var(--mono); font-size: 11px; color: var(--text-muted); margin-top: 8px; opacity: 0.6; }
+  .drop-label strong { color: var(--accent); }
+  .drop-hint { font-family: var(--sans); font-size: 11px; color: var(--text-faint); margin-top: 8px; letter-spacing: 0.03em; }
 
   /* ── PROCESSING ── */
   #status-bar {
     display: none;
     align-items: center; gap: 12px;
-    padding: 14px 20px; border-radius: 8px;
+    padding: 14px 20px; border-radius: 10px;
     background: var(--surface); border: 1px solid var(--border);
-    margin-bottom: 32px; font-family: var(--mono); font-size: 13px;
+    margin-bottom: 32px; font-family: var(--sans); font-size: 13px;
     color: var(--text-muted);
   }
   .spinner {
     width: 18px; height: 18px; border: 2px solid var(--border);
-    border-top-color: var(--amber); border-radius: 50%;
+    border-top-color: var(--accent); border-radius: 50%;
     animation: spin 0.8s linear infinite; flex-shrink: 0;
   }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -123,157 +160,133 @@
   #results { display: none; }
 
   .project-badge {
-    background: var(--amber-glow); border: 1px solid rgba(196,126,16,0.25);
-    border-radius: 10px; padding: 24px 28px; margin-bottom: 32px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px 28px; margin-bottom: 24px;
+    box-shadow: 0 2px 16px rgba(26,36,32,0.06);
   }
   .project-badge .pb-label {
-    font-family: var(--mono); font-size: 10px; letter-spacing: 0.12em;
-    color: var(--amber); text-transform: uppercase; margin-bottom: 8px;
+    font-family: var(--sans); font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+    color: var(--accent); text-transform: uppercase; margin-bottom: 10px;
   }
-  .project-badge .pb-title { font-size: 18px; font-weight: 700; line-height: 1.4; margin-bottom: 12px; color: var(--text); }
+  .project-badge .pb-title { font-family: var(--serif); font-size: 20px; font-weight: 400; line-height: 1.4; margin-bottom: 16px; color: var(--text); }
   .pb-meta { display: flex; gap: 24px; flex-wrap: wrap; }
-  .pb-meta-item { display: flex; flex-direction: column; gap: 2px; }
-  .pb-meta-item .mk { font-family: var(--mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.08em; }
-  .pb-meta-item .mv { font-size: 14px; font-weight: 600; color: var(--text); }
+  .pb-meta-item { display: flex; flex-direction: column; gap: 3px; }
+  .pb-meta-item .mk { font-family: var(--sans); font-size: 10px; font-weight: 600; color: var(--text-faint); letter-spacing: 0.07em; text-transform: uppercase; }
+  .pb-meta-item .mv { font-family: var(--serif); font-size: 17px; color: var(--text); }
 
-  /* download buttons */
-  .dl-row { display: flex; gap: 12px; margin-bottom: 40px; flex-wrap: wrap; }
+  /* summary counts grid */
+  .summary-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
+    gap: 12px; margin-bottom: 28px;
+  }
+  .summary-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px;
+  }
+  .summary-card .sc-label { font-family: var(--sans); font-size: 10px; font-weight: 600; color: var(--text-faint); letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px; }
+  .summary-card .sc-val { font-family: var(--serif); font-size: 22px; color: var(--accent); }
+
+  /* download button */
+  .dl-row { display: flex; gap: 12px; margin-bottom: 32px; flex-wrap: wrap; }
   .dl-btn {
     display: flex; align-items: center; gap: 10px;
-    padding: 14px 24px; border-radius: 8px; cursor: pointer;
-    font-family: var(--mono); font-size: 13px; font-weight: 600;
+    padding: 12px 22px; border-radius: 8px; cursor: pointer;
+    font-family: var(--sans); font-size: 13px; font-weight: 600;
     border: none; transition: all 0.15s; text-decoration: none;
-    letter-spacing: 0.04em;
   }
-  .dl-btn-md { background: var(--amber); color: #fff; }
-  .dl-btn-md:hover { background: var(--amber-soft); transform: translateY(-1px); }
-  .dl-btn-html { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
-  .dl-btn-html:hover { border-color: var(--amber); background: var(--amber-glow); }
+  .dl-btn-md { background: var(--accent); color: #fff; }
+  .dl-btn-md:hover { background: var(--accent-soft); }
   .dl-btn svg { width: 16px; height: 16px; flex-shrink: 0; }
 
-  /* preview tabs */
-  .preview-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
-  .tab-btn {
-    padding: 10px 20px; background: none; border: none; cursor: pointer;
-    font-family: var(--mono); font-size: 12px; color: var(--text-muted);
-    border-bottom: 2px solid transparent; margin-bottom: -1px;
-    transition: color 0.15s, border-color 0.15s; letter-spacing: 0.04em;
-  }
-  .tab-btn.active { color: var(--amber); border-bottom-color: var(--amber); }
-  .tab-btn:hover:not(.active) { color: var(--text); }
-
-  .tab-pane { display: none; }
-  .tab-pane.active { display: block; }
-
   /* MD preview */
+  .preview-label {
+    font-family: var(--sans); font-size: 11px; font-weight: 600; color: var(--text-faint);
+    letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 10px;
+  }
   #md-preview {
     background: var(--surface); border: 1px solid var(--border);
-    border-radius: 8px; padding: 28px; overflow-x: auto;
-    font-family: var(--mono); font-size: 12px; line-height: 1.8;
-    color: #374151; white-space: pre-wrap; max-height: 600px; overflow-y: auto;
-  }
-  #md-preview::-webkit-scrollbar { width: 6px; }
-  #md-preview::-webkit-scrollbar-track { background: var(--bg); }
-  #md-preview::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
-
-  /* HTML preview iframe */
-  #html-frame {
-    width: 100%; height: 600px; border: 1px solid var(--border);
-    border-radius: 8px; background: white;
+    border-radius: 12px; padding: 24px; overflow-x: auto;
+    font-family: ui-monospace, 'SF Mono', Menlo, monospace; font-size: 12px; line-height: 1.8;
+    color: var(--text-muted); white-space: pre-wrap; max-height: 560px; overflow-y: auto;
   }
 
-  /* reset button */
-  .reset-btn {
+  /* reset / switch buttons */
+  .top-actions { display: flex; gap: 10px; margin-bottom: 28px; }
+  .ghost-btn {
     display: inline-flex; align-items: center; gap: 8px;
     background: none; border: 1px solid var(--border); color: var(--text-muted);
-    padding: 8px 16px; border-radius: 6px; cursor: pointer;
-    font-family: var(--mono); font-size: 11px; margin-bottom: 32px;
-    transition: border-color 0.15s, color 0.15s;
+    padding: 8px 16px; border-radius: 8px; cursor: pointer;
+    font-family: var(--sans); font-size: 12px; font-weight: 500;
+    transition: border-color 0.15s, color 0.15s, background 0.15s;
   }
-  .reset-btn:hover { border-color: var(--amber); color: var(--text); }
+  .ghost-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-glow); }
 
   /* error */
   .error-box {
-    display: none; background: rgba(176,48,48,0.06); border: 1px solid rgba(176,48,48,0.25);
-    border-radius: 8px; padding: 16px 20px; color: var(--red);
-    font-family: var(--mono); font-size: 13px; margin-bottom: 24px;
+    display: none; background: var(--red-glow); border: 1px solid #E87A7A;
+    border-radius: 10px; padding: 14px 18px; color: var(--red);
+    font-family: var(--sans); font-size: 13px; margin-bottom: 24px;
   }
 
   /* ── MODAL ── */
   .modal-overlay {
     display: none; position: fixed; inset: 0;
-    background: rgba(26,35,50,0.45); backdrop-filter: blur(3px);
+    background: rgba(26,36,32,0.5); backdrop-filter: blur(3px);
     z-index: 200; align-items: center; justify-content: center;
   }
   .modal-overlay.open { display: flex; }
   .modal {
-    background: #FFFFFF; border: 1px solid var(--border);
-    border-radius: 12px; padding: 32px; width: 460px; max-width: 90vw;
+    background: var(--surface); border-radius: 16px; padding: 32px; width: 480px; max-width: 90vw;
     max-height: 90vh; display: flex; flex-direction: column;
-    box-shadow: 0 8px 40px rgba(26,35,50,0.18);
+    box-shadow: 0 24px 80px rgba(26,24,20,0.2);
   }
-  .modal-title {
-    font-size: 15px; font-weight: 700; color: var(--text);
-    margin-bottom: 4px;
-  }
-  .modal-sub {
-    font-family: var(--mono); font-size: 11px; color: var(--text-muted);
-    margin-bottom: 20px; letter-spacing: 0.04em;
-  }
+  .modal-title { font-family: var(--serif); font-size: 20px; font-weight: 400; color: var(--text); margin-bottom: 4px; }
+  .modal-sub { font-family: var(--sans); font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
   .modal-sections {
     display: flex; flex-direction: column; gap: 6px; margin-bottom: 24px;
     overflow-y: auto; flex: 1; padding-right: 4px;
   }
-  .modal-sections::-webkit-scrollbar { width: 4px; }
-  .modal-sections::-webkit-scrollbar-track { background: var(--bg); }
-  .modal-sections::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 2px; }
   .modal-check {
     display: flex; align-items: center; gap: 10px;
-    padding: 10px 12px; border-radius: 6px; cursor: pointer;
+    padding: 10px 12px; border-radius: 8px; cursor: pointer;
     border: 1px solid var(--border); transition: border-color 0.15s, background 0.15s;
     user-select: none;
   }
-  .modal-check:hover { border-color: var(--amber); background: var(--amber-glow); }
+  .modal-check:hover { border-color: var(--accent); background: var(--accent-glow); }
   .modal-check input[type=checkbox] { display: none; }
   .modal-check .chk-box {
     width: 16px; height: 16px; border: 2px solid var(--border-strong);
-    border-radius: 3px; flex-shrink: 0; display: flex;
+    border-radius: 4px; flex-shrink: 0; display: flex;
     align-items: center; justify-content: center; transition: all 0.15s;
   }
-  .modal-check input:checked ~ .chk-box {
-    background: var(--amber); border-color: var(--amber);
-  }
+  .modal-check input:checked ~ .chk-box { background: var(--accent); border-color: var(--accent); }
   .modal-check input:checked ~ .chk-box::after {
     content: ''; display: block; width: 5px; height: 9px;
     border: 2px solid white; border-top: none; border-left: none;
     transform: rotate(45deg) translate(-1px, -1px);
   }
   .modal-check .chk-label { font-size: 13px; color: var(--text); font-weight: 500; }
-  .modal-check .chk-count { font-family: var(--mono); font-size: 10px; color: var(--text-muted); margin-left: auto; }
+  .modal-check .chk-count { font-family: var(--sans); font-size: 10px; color: var(--text-faint); margin-left: auto; }
   .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
   .modal-btn-cancel {
-    padding: 10px 18px; border-radius: 6px; border: 1px solid var(--border);
-    background: none; color: var(--text-muted); font-family: var(--mono);
-    font-size: 12px; cursor: pointer; transition: all 0.15s;
+    padding: 10px 18px; border-radius: 8px; border: 1px solid var(--border);
+    background: none; color: var(--text-muted); font-family: var(--sans);
+    font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.15s;
   }
   .modal-btn-cancel:hover { border-color: var(--border-strong); color: var(--text); }
   .modal-btn-confirm {
-    padding: 10px 20px; border-radius: 6px; border: none;
-    background: var(--amber); color: white; font-family: var(--mono);
+    padding: 10px 20px; border-radius: 8px; border: none;
+    background: var(--accent); color: white; font-family: var(--sans);
     font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
   }
-  .modal-btn-confirm:hover { background: var(--amber-soft); }
+  .modal-btn-confirm:hover { background: var(--accent-soft); }
   .modal-select-all {
-    font-family: var(--mono); font-size: 11px; color: var(--amber);
+    font-family: var(--sans); font-size: 11px; font-weight: 600; color: var(--accent);
     background: none; border: none; cursor: pointer; padding: 0;
-    margin-bottom: 10px; letter-spacing: 0.04em;
+    margin-bottom: 10px;
   }
   .modal-select-all:hover { text-decoration: underline; }
-  .modal-check-sub {
-    margin-left: 24px; border-style: dashed;
-    border-color: var(--border); background: var(--bg);
-  }
-  .modal-check-sub:hover { border-color: var(--amber); background: var(--amber-glow); }
+  .modal-check-sub { margin-left: 24px; border-style: dashed; border-color: var(--border); background: var(--bg); }
+  .modal-check-sub:hover { border-color: var(--accent); background: var(--accent-glow); }
   .modal-check-group { font-weight: 600; }
   .modal-sublist { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
   .modal-group-header { display: flex; flex-direction: column; gap: 4px; }
@@ -283,33 +296,59 @@
 
 <header>
   <div class="logo-mark"></div>
-  <div class="logo-text"><strong>INOVATUS</strong> · Extrator PTR-B</div>
+  <div class="logo-text"><strong>Inovatus</strong> · Extrator PTR-B / REF-RTC</div>
   <div class="spacer"></div>
   <div class="header-tag">ANP R&amp;D</div>
 </header>
 
 <main>
 
+  <!-- TYPE SELECTOR -->
+  <div class="type-section" id="type-section">
+    <div class="type-eyebrow">Ferramenta de extração</div>
+    <h1 class="type-title">O que você quer extrair?</h1>
+    <p class="type-sub">Escolha o tipo de planilha para começar. Os dois formatos usam a mesma lógica de extração, mas abas e campos diferentes.</p>
+    <div class="type-cards">
+      <div class="type-card" id="type-ptrb" data-type="ptrb">
+        <div class="tc-icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M7 8h10M7 12h10M7 16h6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="tc-name">PTR-B</div>
+        <div class="tc-desc">Plano de Trabalho e Recursos — Versão B. Identificação, dados institucionais, técnicos, atividades, equipe e despesas.</div>
+      </div>
+      <div class="type-card" id="type-ref" data-type="ref">
+        <div class="tc-icon">
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M7 8h10M7 12h7M7 16h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="tc-name">REF-RTC</div>
+        <div class="tc-desc">Relatório de Execução Física. Inclui viagens, RH, contrapartidas, outras fontes, receita financeira e quadro resumo.</div>
+      </div>
+    </div>
+  </div>
+
   <!-- DROP ZONE -->
-  <div class="drop-section" id="drop-section">
-    <div class="drop-eyebrow">Ferramenta de extração</div>
-    <h1 class="drop-title">PTR-B → Documento IA-Ready</h1>
-    <p class="drop-sub">Carregue qualquer PTR-B em formato .xlsx para extrair as informações do projeto<br>em Markdown estruturado e visualização HTML.</p>
+  <div class="drop-section" id="drop-section" style="display:none;">
+    <div class="type-badge-row">
+      <span class="type-current-badge" id="type-current-badge">PTR-B</span>
+      <button class="type-switch-link" id="type-switch-link">trocar tipo</button>
+    </div>
+    <h1 class="drop-title" id="drop-title">PTR-B → Documento IA-Ready</h1>
+    <p class="drop-sub" id="drop-sub">Carregue o arquivo em formato .xlsx para extrair as informações do projeto em Markdown estruturado.</p>
 
     <div class="drop-zone" id="drop-zone">
       <input type="file" id="file-input" accept=".xlsx,.xlsm">
       <div class="drop-icon">
         <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <rect x="8" y="4" width="28" height="36" rx="3" fill="#F0EEE9" stroke="#C47E10" stroke-width="1.5"/>
-          <rect x="13" y="14" width="18" height="2" rx="1" fill="#C4BEB4"/>
-          <rect x="13" y="20" width="14" height="2" rx="1" fill="#C4BEB4"/>
-          <rect x="13" y="26" width="10" height="2" rx="1" fill="#C4BEB4"/>
-          <circle cx="36" cy="36" r="10" fill="#F7F6F3" stroke="#C47E10" stroke-width="1.5"/>
-          <path d="M36 31v10M31 36h10" stroke="#C47E10" stroke-width="2" stroke-linecap="round"/>
+          <rect x="8" y="4" width="28" height="36" rx="3" fill="#EAF0EE" stroke="#2D5C4E" stroke-width="1.5"/>
+          <rect x="13" y="14" width="18" height="2" rx="1" fill="#B7C7C1"/>
+          <rect x="13" y="20" width="14" height="2" rx="1" fill="#B7C7C1"/>
+          <rect x="13" y="26" width="10" height="2" rx="1" fill="#B7C7C1"/>
+          <circle cx="36" cy="36" r="10" fill="#F4F6F5" stroke="#2D5C4E" stroke-width="1.5"/>
+          <path d="M36 31v10M31 36h10" stroke="#2D5C4E" stroke-width="2" stroke-linecap="round"/>
         </svg>
       </div>
       <div class="drop-label">Arraste o arquivo aqui ou <strong>clique para selecionar</strong></div>
-      <div class="drop-hint">Compatível com PTR-B Versão 6 · apenas .xlsx</div>
+      <div class="drop-hint" id="drop-hint">Apenas .xlsx</div>
     </div>
   </div>
 
@@ -324,38 +363,30 @@
 
   <!-- RESULTS -->
   <div id="results">
-    <button class="reset-btn" id="reset-btn">
-      <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>
-      Carregar outro arquivo
-    </button>
+    <div class="top-actions">
+      <button class="ghost-btn" id="reset-btn">
+        <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12"><path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/><path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/></svg>
+        Carregar outro arquivo
+      </button>
+    </div>
 
     <div class="project-badge" id="project-badge">
-      <div class="pb-label">Projeto extraído</div>
+      <div class="pb-label" id="pb-type-label">Projeto extraído</div>
       <div class="pb-title" id="pb-title">—</div>
       <div class="pb-meta" id="pb-meta"></div>
     </div>
+
+    <div class="summary-grid" id="summary-grid"></div>
 
     <div class="dl-row">
       <button class="dl-btn dl-btn-md" id="dl-md">
         <svg viewBox="0 0 16 16" fill="currentColor"><path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/></svg>
         Baixar Markdown
       </button>
-      <a class="dl-btn dl-btn-html" id="dl-html" href="#" download="projeto_resumo.html">
-        <svg viewBox="0 0 16 16" fill="currentColor"><path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5 1.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-2z"/><path d="M8.646 6.646a.5.5 0 0 1 .708 0l2 2a.5.5 0 0 1 0 .708l-2 2a.5.5 0 0 1-.708-.708L10.293 9 8.646 7.354a.5.5 0 0 1 0-.708zm-1.292 0a.5.5 0 0 0-.708 0l-2 2a.5.5 0 0 0 0 .708l2 2a.5.5 0 0 0 .708-.708L5.707 9l1.647-1.646a.5.5 0 0 0 0-.708z"/></svg>
-        Baixar Dashboard HTML
-      </a>
     </div>
 
-    <div class="preview-tabs">
-      <button class="tab-btn active" data-tab="md">Markdown</button>
-      <button class="tab-btn" data-tab="html">Dashboard</button>
-    </div>
-    <div class="tab-pane active" id="tab-md">
-      <pre id="md-preview"></pre>
-    </div>
-    <div class="tab-pane" id="tab-html">
-      <iframe id="html-frame" title="Dashboard do Projeto"></iframe>
-    </div>
+    <div class="preview-label">Pré-visualização</div>
+    <pre id="md-preview"></pre>
   </div>
 
 
@@ -376,10 +407,10 @@
 
 <script>
 // ═══════════════════════════════════════════════
-//  HELPERS
+//  HELPERS (comuns aos dois extratores)
 // ═══════════════════════════════════════════════
 const $ = id => document.getElementById(id);
-const fieldPattern = /^([A-Z])\.\d+/i;
+const fieldPattern = /^([A-Z]\d*)\.\d+/i;
 
 function isOfficialSheet(name) {
   const skip = ['area-tema-subtema','apoio','verificação','verificacao','bd-','quadro resumo'];
@@ -399,7 +430,7 @@ function cleanLabel(raw) {
 
 function fmtBRL(v) {
   if (v == null || v === '') return '—';
-  const n = parseFloat(v);
+  const n = typeof v === 'number' ? v : parseFloat(v);
   if (isNaN(n)) return String(v);
   return n.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
@@ -408,11 +439,23 @@ function fmtVal(v) {
   if (v == null || v === '') return '—';
   if (typeof v === 'boolean') return v ? 'Sim' : 'Não';
   if (v instanceof Date) return v.toLocaleDateString('pt-BR');
-  return String(v);
+  return String(v).trim();
+}
+
+function isEmptyCell(v) { return v == null || String(v).trim() === ''; }
+
+function findKeyContaining(obj, substr) {
+  const key = Object.keys(obj || {}).find(k => k.toUpperCase().includes(substr.toUpperCase()));
+  return key ? obj[key] : null;
+}
+
+function sheetRows(wb, name) {
+  if (!wb.SheetNames.includes(name)) return null;
+  return XLSX.utils.sheet_to_json(wb.Sheets[name], { header: 1, defval: null });
 }
 
 // ═══════════════════════════════════════════════
-//  MAIN EXTRACTOR
+//  EXTRATOR PTR-B
 // ═══════════════════════════════════════════════
 function extractPTRB(wb) {
   const data = {};
@@ -432,7 +475,6 @@ function extractPTRB(wb) {
         base[key] = fmtVal(val);
       }
     });
-    // Annexes
     const annexes = [];
     let inAnnex = false;
     rows.forEach(row => {
@@ -449,7 +491,6 @@ function extractPTRB(wb) {
     const ws = wb.Sheets['A - DADOS INST.'];
     const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
 
-    // Find header row for proponents (A.1/A.2/A.3)
     let propHeader = -1, execHeader = -1;
     rows.forEach((row, i) => {
       const vals = row.map(v => v ? String(v) : '');
@@ -457,7 +498,6 @@ function extractPTRB(wb) {
       if (vals.some(v => /^A\.7\s*-/.test(v))) execHeader = i;
     });
 
-    // Proponents
     if (propHeader >= 0) {
       const hrow = rows[propHeader];
       const cols = {};
@@ -472,7 +512,6 @@ function extractPTRB(wb) {
       }
     }
 
-    // Executors - look for A.6/A.7 pattern
     if (execHeader >= 0) {
       const hrow = rows[execHeader];
       const cols = {};
@@ -483,7 +522,6 @@ function extractPTRB(wb) {
       });
       for (let r = execHeader + 1; r < rows.length; r++) {
         const row = rows[r];
-        // col A.6 = razão social
         const name = row[cols['6']];
         if (!name) break;
         const executor = { razaoSocial: fmtVal(name) };
@@ -500,7 +538,6 @@ function extractPTRB(wb) {
     const ws = wb.Sheets['B - DADOS TÉCNICOS'];
     const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
 
-    // Scan for B.X fields
     rows.forEach(row => {
       row.forEach((cell, ci) => {
         if (!cell || typeof cell !== 'string') return;
@@ -512,7 +549,6 @@ function extractPTRB(wb) {
       });
     });
 
-    // Results (B.7/B.8/B.9 header + data rows)
     let resultHeader = -1;
     rows.forEach((row, i) => {
       if (row.some(v => v && /^B\.7/.test(String(v)))) resultHeader = i;
@@ -529,7 +565,6 @@ function extractPTRB(wb) {
       }
     }
 
-    // Keywords row (B.3)
     rows.forEach(row => {
       if (row[0] && /^B\.3/.test(String(row[0]))) {
         for (let i = 1; i < row.length; i++) {
@@ -580,14 +615,11 @@ function extractPTRB(wb) {
       const c2 = hrow.findIndex(v => v && /^D\.2/.test(String(v)));
       const c3 = hrow.findIndex(v => v && /^D\.3/.test(String(v)));
       const c4 = hrow.findIndex(v => v && /^D\.4/.test(String(v)));
-      // D.5 activity columns start here
       const c5start = hrow.findIndex(v => v && /^D\.5/.test(String(v)));
-      // Activity sub-headers are on next row
       const actRow = rows[hrow_idx - 1] || [];
       for (let r = hrow_idx + 1; r < rows.length; r++) {
         const row = rows[r];
         if (!row[c1]) break;
-        // Collect activities this member participates in
         const memberActs = [];
         if (c5start >= 0) {
           for (let ci = c5start; ci < row.length; ci++) {
@@ -636,7 +668,6 @@ function extractPTRB(wb) {
     const ws = wb.Sheets[name];
     const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
 
-    // Find header row by looking for cells matching X.N pattern for this sheet's letter
     let hrow_idx = -1;
     rows.forEach((row, i) => {
       if (row.some(v => v && new RegExp(`^${meta.letter}\\.\\d+`).test(String(v)))) {
@@ -646,24 +677,19 @@ function extractPTRB(wb) {
     if (hrow_idx < 0) return;
 
     const hrow = rows[hrow_idx];
-    // Map official columns
     const officialCols = [];
     hrow.forEach((v, ci) => {
       if (!v || !new RegExp(`^${meta.letter}\\.\\d+`).test(String(v))) return;
       officialCols.push({ ci, label: cleanLabel(String(v)) });
     });
-    // Also grab ITEM col (col 0 typically, contains X.Y item numbers)
     const itemCol = hrow.findIndex(v => v && String(v).toUpperCase() === 'ITEM');
 
     const catRows = [];
     for (let r = hrow_idx + 1; r < rows.length; r++) {
       const row = rows[r];
-      // Check if this row has any non-null official col value
       const hasData = officialCols.some(({ ci }) => row[ci] != null && row[ci] !== '');
-      // Also check item col
       const itemVal = itemCol >= 0 ? row[itemCol] : null;
       if (!hasData && !itemVal) continue;
-      // Skip if all official values are empty/null
       const allEmpty = officialCols.every(({ ci }) => row[ci] == null || row[ci] === '');
       if (allEmpty) continue;
 
@@ -672,7 +698,6 @@ function extractPTRB(wb) {
       officialCols.forEach(({ ci, label }) => {
         const v = row[ci];
         if (v != null && v !== '') {
-          // Format currency fields
           const isValue = /valor|custo|remuner|encargo/i.test(label);
           entry[label] = isValue && typeof v === 'number' ? fmtBRL(v) : fmtVal(v);
         }
@@ -736,16 +761,334 @@ function extractPTRB(wb) {
 }
 
 // ═══════════════════════════════════════════════
-//  MARKDOWN GENERATOR
+//  EXTRATOR REF-RTC
 // ═══════════════════════════════════════════════
-function generateMarkdown(d, sel, despLetters) {
-  // sel = Set of section keys to include; if undefined/null = include all
+
+// Lê linhas de uma aba (array de arrays) já com defval:null.
+// Encontra a primeira linha que contenha uma célula batendo no padrão dado.
+function refFindHeaderRow(rows, pattern, fromRow) {
+  fromRow = fromRow || 0;
+  for (let i = fromRow; i < rows.length; i++) {
+    if ((rows[i] || []).some(v => v && pattern.test(String(v)))) return i;
+  }
+  return -1;
+}
+
+function refColIndices(row, pattern) {
+  const cols = [];
+  (row || []).forEach((v, ci) => {
+    if (v && pattern.test(String(v))) cols.push({ ci, label: cleanLabel(String(v)) });
+  });
+  return cols;
+}
+
+// Lê uma tabela repetível abaixo de uma linha de cabeçalho.
+// `endRow` limita o final (para não engolir o cabeçalho da próxima seção).
+// Sem `endRow`, para depois de `maxGap` linhas seguidas sem dado relevante.
+function refReadTable(rows, headerRowIdx, cols, opts) {
+  opts = opts || {};
+  const maxGap = opts.maxGap == null ? 2 : opts.maxGap;
+  const endRow = opts.endRow == null ? rows.length : opts.endRow;
+  // Colunas "Item" são numeração pré-preenchida no template — não contam como dado real.
+  const significantCols = cols.filter(c => c.label.toLowerCase() !== 'item');
+  const checkCols = significantCols.length > 0 ? significantCols : cols;
+  const out = [];
+  let gap = 0;
+  for (let r = headerRowIdx + 1; r < endRow; r++) {
+    const row = rows[r] || [];
+    const hasAny = checkCols.some(({ ci }) => !isEmptyCell(row[ci]));
+    if (!hasAny) {
+      gap++;
+      if (gap > maxGap) break;
+      continue;
+    }
+    gap = 0;
+    const entry = {};
+    cols.forEach(({ ci, label }) => {
+      const v = row[ci];
+      if (!isEmptyCell(v)) {
+        const isValue = /valor|custo|remuner|encargo/i.test(label);
+        entry[label] = isValue && typeof v === 'number' ? fmtBRL(v) : fmtVal(v);
+      }
+    });
+    out.push(entry);
+  }
+  return out;
+}
+
+function refScanLabelValueFields(rows, letterRegex, span) {
+  const out = {};
+  rows.forEach(row => {
+    row.forEach((cell, ci) => {
+      if (!cell || typeof cell !== 'string') return;
+      if (!letterRegex.test(cell)) return;
+      const label = cleanLabel(cell);
+      let val = null;
+      for (let k = 1; k <= span; k++) {
+        const c = row[ci + k];
+        if (c && typeof c === 'string' && fieldPattern.test(c)) break;
+        if (c != null && String(c).trim() !== '') { val = c; break; }
+      }
+      if (val != null) out[label] = fmtVal(val);
+    });
+  });
+  return out;
+}
+
+function extractREF(wb) {
+  const data = {};
+
+  // ── BASE ──
+  const base = {};
+  const baseRows = sheetRows(wb, 'BASE');
+  if (baseRows) {
+    baseRows.forEach(row => {
+      if (!row[0] || typeof row[0] !== 'string') return;
+      if (!/^BASE\.\d+/i.test(row[0])) return;
+      const label = cleanLabel(row[0]);
+      // A célula de resposta fica sempre a 1-2 colunas do rótulo; não abrir a busca pela linha
+      // inteira, senão ela acaba pegando listas de apoio (dropdowns) mais à direita na mesma linha.
+      let val = null;
+      for (let k = 1; k <= 3; k++) {
+        const c = row[k];
+        if (c != null && String(c).trim() !== '') { val = c; break; }
+      }
+      base[label] = fmtVal(val);
+    });
+    const annexes = [];
+    let inAnnex = false;
+    baseRows.forEach(row => {
+      if (row[0] === 'NOME DO ARQUIVO') { inAnnex = true; return; }
+      if (inAnnex && row[0] && row[1] && !/^BASE\.\d+/i.test(String(row[0]))) annexes.push({ file: row[0], desc: row[1] });
+    });
+    base._annexes = annexes;
+  }
+  data.base = base;
+
+  // ── A - DADOS INSTITUCIONAIS ──
+  const inst = { proponents: [], executors: [] };
+  const aRows = sheetRows(wb, 'A - DADOS INST.');
+  if (aRows) {
+    const propHeader = refFindHeaderRow(aRows, /^A\.1\s*-/i);
+    const execHeader = refFindHeaderRow(aRows, /^A\.4\s*-/i);
+    if (propHeader >= 0) {
+      const cols = refColIndices(aRows[propHeader], /^A\.[12]\b/i);
+      inst.proponents = refReadTable(aRows, propHeader, cols, { endRow: execHeader >= 0 ? execHeader - 1 : undefined });
+    }
+    if (execHeader >= 0) {
+      const cols = refColIndices(aRows[execHeader], /^A\.(4|5|6|7|8|9|10|11|12|13|14)\b/i);
+      inst.executors = refReadTable(aRows, execHeader, cols, { maxGap: 2 });
+    }
+  }
+  data.inst = inst;
+
+  // ── B - DADOS TÉCNICOS ──
+  const tech = { fields: {}, keywords: [], areaTemaSubtema: [], projetosRelacionados: [], results: [] };
+  const bRows = sheetRows(wb, 'B - DADOS TÉCNICOS');
+  if (bRows) {
+    tech.fields = refScanLabelValueFields(bRows, /^B\.1\s*-/i, 4);
+
+    const kwRow = refFindHeaderRow(bRows, /^B\.2\s*-/i);
+    const areaHeader = refFindHeaderRow(bRows, /^B\.3\s*-/i);
+    const projHeader = refFindHeaderRow(bRows, /^B\.6\s*-/i);
+    const resHeader = refFindHeaderRow(bRows, /^B\.9\s*-/i);
+
+    if (kwRow >= 0) {
+      const end = areaHeader >= 0 ? areaHeader : Math.min(kwRow + 10, bRows.length);
+      for (let r = kwRow + 1; r < end; r++) {
+        const v = (bRows[r] || [])[0];
+        if (!isEmptyCell(v)) tech.keywords.push(fmtVal(v));
+      }
+    }
+    if (areaHeader >= 0) {
+      const cols = refColIndices(bRows[areaHeader], /^B\.[345]\b/i);
+      tech.areaTemaSubtema = refReadTable(bRows, areaHeader, cols, { endRow: projHeader >= 0 ? projHeader - 1 : undefined });
+    }
+    if (projHeader >= 0) {
+      const cols = refColIndices(bRows[projHeader], /^B\.[678]\b/i);
+      tech.projetosRelacionados = refReadTable(bRows, projHeader, cols, { endRow: resHeader >= 0 ? resHeader - 1 : undefined });
+    }
+    if (resHeader >= 0) {
+      const cols = refColIndices(bRows[resHeader], /^B\.(9|10|11|12)\b/i);
+      tech.results = refReadTable(bRows, resHeader, cols, { maxGap: 2 });
+    }
+  }
+  data.tech = tech;
+
+  // ── C - ATIVIDADES ──
+  const activities = [];
+  const cRows = sheetRows(wb, 'C - DADOS ATIVIDADES');
+  if (cRows) {
+    const h1 = refFindHeaderRow(cRows, /^C\.1\s*-/i);
+    const h2 = h1 >= 0 ? h1 + 1 : -1;
+    if (h1 >= 0) {
+      const row1 = cRows[h1] || [];
+      const row2 = cRows[h2] || [];
+      const c1 = row1.findIndex(v => v && /^C\.1\b/i.test(String(v)));
+      const c2 = row1.findIndex(v => v && /^C\.2\b/i.test(String(v)));
+      const c3 = row2.findIndex(v => v && /^C\.3\b/i.test(String(v)));
+      const c4 = row2.findIndex(v => v && /^C\.4\b/i.test(String(v)));
+      const c5 = row1.findIndex(v => v && /^C\.5\b/i.test(String(v)));
+      let gap = 0;
+      for (let r = h2 + 1; r < cRows.length; r++) {
+        const row = cRows[r] || [];
+        const has = [c1, c2, c3, c4, c5].some(ci => ci >= 0 && !isEmptyCell(row[ci]));
+        if (!has) { gap++; if (gap > 2) break; continue; }
+        gap = 0;
+        activities.push({
+          atividade: fmtVal(row[c1]), detalhamento: fmtVal(row[c2]),
+          ano: fmtVal(row[c3]), mes: fmtVal(row[c4]), duracao: fmtVal(row[c5]),
+        });
+      }
+    }
+  }
+  data.activities = activities;
+
+  // ── D - EQUIPE ──
+  const team = [];
+  const dRows = sheetRows(wb, 'D - DADOS EQUIPE');
+  if (dRows) {
+    const h = refFindHeaderRow(dRows, /^D\.1\s*-/i);
+    if (h >= 0) {
+      const hrow = dRows[h];
+      const c1 = hrow.findIndex(v => v && /^D\.1\b/i.test(String(v)));
+      const c2 = hrow.findIndex(v => v && /^D\.2\b/i.test(String(v)));
+      const c3 = hrow.findIndex(v => v && /^D\.3\b/i.test(String(v)));
+      const c4 = hrow.findIndex(v => v && /^D\.4\b/i.test(String(v)));
+      const c5 = hrow.findIndex(v => v && /^D\.5\b/i.test(String(v)));
+      const c6start = hrow.findIndex(v => v && /^D\.6\b/i.test(String(v)));
+      const actRow = dRows[h - 1] || [];
+      let gap = 0;
+      for (let r = h + 1; r < dRows.length; r++) {
+        const row = dRows[r] || [];
+        if (isEmptyCell(row[c1])) { gap++; if (gap > 2) break; continue; }
+        gap = 0;
+        const acts = [];
+        if (c6start >= 0) {
+          for (let ci = c6start; ci < row.length; ci++) {
+            if (String(row[ci] || '').toUpperCase() === 'X') {
+              const label = actRow[ci] || hrow[ci];
+              if (label) acts.push(String(label));
+            }
+          }
+        }
+        team.push({
+          nome: fmtVal(row[c1]), cpf: fmtVal(row[c2]), funcao: fmtVal(row[c3]),
+          formacao: fmtVal(row[c4]), meses: fmtVal(row[c5]), atividades: acts,
+        });
+      }
+    }
+  }
+  data.team = team;
+
+  // ── E - VIAGENS ──
+  const travels = [];
+  const eRows = sheetRows(wb, 'E - DADOS VIAGENS');
+  if (eRows) {
+    const h = refFindHeaderRow(eRows, /^E\.1\s*-/i);
+    if (h >= 0) {
+      const cols = refColIndices(eRows[h], /^E\.[1-7]\b/i);
+      travels.push(...refReadTable(eRows, h, cols, { maxGap: 2 }));
+    }
+  }
+  data.travels = travels;
+
+  // ── ABAS DE DESPESA E BLOCOS SIMILARES (padrão X.N genérico) ──
+  function extractGenericSheet(sheetName, letterPattern) {
+    const rows = sheetRows(wb, sheetName);
+    if (!rows) return [];
+    const h = refFindHeaderRow(rows, letterPattern);
+    if (h < 0) return [];
+    const cols = refColIndices(rows[h], letterPattern);
+    const itemCol = (rows[h] || []).findIndex(v => v && String(v).toUpperCase() === 'ITEM');
+    const allCols = itemCol >= 0 ? [{ ci: itemCol, label: 'Item' }, ...cols] : cols;
+    return refReadTable(rows, h, allCols, { maxGap: 2 });
+  }
+
+  const expSheets = [
+    { name: 'F - Desp. EQUIPE', letter: 'F', cat: 'Despesas com Equipe Executora' },
+    { name: 'G - Desp. MAT. CONSUMO', letter: 'G', cat: 'Despesas com Material de Consumo' },
+    { name: 'H - Desp. PASSAGENS', letter: 'H', cat: 'Despesas com Passagens' },
+    { name: 'I - Desp. DIÁRIA E AJ. DE CUSTO', letter: 'I', cat: 'Despesas com Diárias e Ajudas de Custo' },
+    { name: 'J - Desp. SERVIÇO', letter: 'J', cat: 'Despesas com Serviços de Terceiros' },
+    { name: 'K - Desp. SERVIÇO-TIB', letter: 'K', cat: 'Despesas com Serviços Específicos TIB' },
+    { name: 'L - Desp. PROTÓTIPO', letter: 'L', cat: 'Despesas com Protótipo / Unidade Piloto' },
+    { name: 'M - Desp. OBRAS E INST.', letter: 'M', cat: 'Despesas com Obras e Instalações' },
+    { name: 'N - Desp. EQUIPAM. E MAT. PERM.', letter: 'N', cat: 'Despesas com Equipamentos e Material Permanente' },
+    { name: 'O - Desp. OUTROS BENS E DIR.', letter: 'O', cat: 'Despesas com Outros Bens e Direitos' },
+    { name: 'P - Desp. CUSTOS DIRETOS', letter: 'P', cat: 'Despesas com Custos Diretos' },
+    { name: 'Q - Desp. CAPAC. DE FORN.', letter: 'Q', cat: 'Despesas com Capacitação de Fornecedores' },
+    { name: 'R1 - Desp. RH - BOLSAS', letter: 'R1', cat: 'Despesas com RH — Bolsas', pattern: /^R\.[1-7]\b/i },
+    { name: 'R2 - Desp. RH - TAXA E OUTRAS', letter: 'R2', cat: 'Despesas com RH — Taxas e Outras', pattern: /^R\.(8|9|10|11|12|13|14|15)\b/i },
+    { name: 'S - Desp. TESTES', letter: 'S', cat: 'Despesas com Testes em Instalação Operacional' },
+    { name: 'T - OUTRAS DESP.', letter: 'T', cat: 'Outras Despesas' },
+    { name: 'U - Desp. TRIBUTOS', letter: 'U', cat: 'Despesas com Tributos' },
+  ];
+
+  const expenses = [];
+  expSheets.forEach(meta => {
+    const pattern = meta.pattern || new RegExp('^' + meta.letter + '\\.\\d+', 'i');
+    const rowsData = extractGenericSheet(meta.name, pattern);
+    if (rowsData.length > 0) expenses.push({ category: meta.cat, letter: meta.letter, rows: rowsData });
+  });
+  data.expenses = expenses;
+
+  data.internas = extractGenericSheet('V - Desp. INTERNAS', /^V\.[12]\b/i);
+  data.contrapartidas = extractGenericSheet('W - CONTRAPARTIDAS', /^W\.[1-8]\b/i);
+  data.otherFunding = extractGenericSheet('X - OUTRAS FONTES', /^X\.[123]\b/i);
+  data.financialRevenue = extractGenericSheet('Y - RECEITA FINANCEIRA', /^Y\.[12]\b/i);
+
+  // ── QUADRO RESUMO (template fixo: mantém só elementos com valor > 0) ──
+  const summary = [];
+  let totalProject = null;
+  if (wb.SheetNames.includes('QUADRO RESUMO')) {
+    const qrRows = XLSX.utils.sheet_to_json(wb.Sheets['QUADRO RESUMO'], { header: 1, defval: null });
+    let currentGroup = null;
+    for (let r = 4; r < qrRows.length; r++) {
+      const row = qrRows[r] || [];
+      const group = row[0];
+      const elemento = row[1];
+      const val = row[5];
+      const labelText = String(group || elemento || '');
+      if (group && typeof group === 'string') currentGroup = group.replace(/\n/g, ' ');
+      if (/VALOR TOTAL DO PROJETO/i.test(labelText)) {
+        if (typeof val === 'number') totalProject = fmtBRL(val);
+        continue;
+      }
+      if (typeof val !== 'number' || val <= 0) continue;
+      if (elemento && typeof elemento === 'string') {
+        summary.push({ grupo: currentGroup || '', elemento: elemento.replace(/\n/g, ' '), valor: fmtBRL(val) });
+      } else if (!elemento && group && typeof group === 'string') {
+        summary.push({ grupo: '', elemento: currentGroup, valor: fmtBRL(val) });
+      }
+    }
+  }
+  data.summary = summary;
+  data.totalProject = totalProject;
+
+  return data;
+}
+
+// ═══════════════════════════════════════════════
+//  MARKDOWN — PTR-B
+// ═══════════════════════════════════════════════
+const PTRB_SECTIONS = [
+  { key: 'identificacao', label: 'Identificação do Projeto',       icon: '📋' },
+  { key: 'institucional', label: 'Dados Institucionais',           icon: '🏛️' },
+  { key: 'tecnico',       label: 'Dados Técnicos',                 icon: '🔬' },
+  { key: 'atividades',    label: 'Atividades e Cronograma',        icon: '📅' },
+  { key: 'equipe',        label: 'Equipe Executora',               icon: '👥' },
+  { key: 'resumo',        label: 'Quadro Resumo das Despesas',     icon: '📊' },
+  { key: 'outras_fontes', label: 'Outras Fontes de Financiamento', icon: '🔗' },
+];
+
+function generateMarkdownPTRB(d, sel, despLetters) {
   const inc = key => !sel || sel.has(key);
   const lines = [];
   const { base, inst, tech, activities, team, expenses, otherFunding, summary, totalProject } = d;
 
   lines.push(`# PTR-B — Contexto do Projeto para Análise`);
-  lines.push(`> Documento gerado automaticamente pelo Extrator PTR-B (Inovatus). Contém os dados oficiais extraídos das abas de entrada do formulário PTR-B.`);
+  lines.push(`> Documento gerado automaticamente pelo Extrator PTR-B / REF-RTC (Inovatus). Contém os dados oficiais extraídos das abas de entrada do formulário PTR-B.`);
   if (sel && sel.size < 8) {
     const labels = [...sel].filter(k => !k.startsWith('desp_')).map(k => ({ identificacao:'Identificação', institucional:'Dados Institucionais', tecnico:'Dados Técnicos', atividades:'Atividades', equipe:'Equipe', despesas:'Despesas', resumo:'Quadro Resumo', outras_fontes:'Outras Fontes' }[k] || k));
     if (despLetters && despLetters.size > 0) labels.push('Despesas (' + [...despLetters].join(', ') + ')');
@@ -753,7 +1096,6 @@ function generateMarkdown(d, sel, despLetters) {
   }
   lines.push('');
 
-  // ── 1. IDENTIFICAÇÃO ──
   if (inc('identificacao')) {
     lines.push(`## 1. Identificação do Projeto`);
     lines.push('');
@@ -769,7 +1111,6 @@ function generateMarkdown(d, sel, despLetters) {
     }
   }
 
-  // ── 2. DADOS INSTITUCIONAIS ──
   if (inc('institucional')) {
     lines.push(`## 2. Dados Institucionais`);
     lines.push('');
@@ -795,7 +1136,6 @@ function generateMarkdown(d, sel, despLetters) {
     }
   }
 
-  // ── 3. DADOS TÉCNICOS ──
   if (inc('tecnico')) {
     lines.push(`## 3. Dados Técnicos`);
     lines.push('');
@@ -817,7 +1157,6 @@ function generateMarkdown(d, sel, despLetters) {
     }
   }
 
-  // ── 4. ATIVIDADES ──
   if (inc('atividades')) {
     lines.push(`## 4. Atividades e Cronograma`);
     lines.push('');
@@ -831,7 +1170,6 @@ function generateMarkdown(d, sel, despLetters) {
     lines.push('');
   }
 
-  // ── 5. EQUIPE ──
   if (inc('equipe')) {
     lines.push(`## 5. Equipe Executora`);
     lines.push('');
@@ -848,9 +1186,7 @@ function generateMarkdown(d, sel, despLetters) {
     lines.push('');
   }
 
-  // ── 6. DESPESAS ──
   if (inc('despesas')) {
-    // Filter by individual letters if despLetters is provided
     const visibleExp = (despLetters && despLetters.size > 0)
       ? expenses.filter(cat => despLetters.has(cat.letter))
       : expenses;
@@ -875,7 +1211,6 @@ function generateMarkdown(d, sel, despLetters) {
     }
   }
 
-  // ── 7. QUADRO RESUMO ──
   if (inc('resumo') && summary.length > 0) {
     lines.push(`## 7. Quadro Resumo das Despesas`);
     lines.push('');
@@ -888,7 +1223,6 @@ function generateMarkdown(d, sel, despLetters) {
     lines.push('');
   }
 
-  // ── 8. OUTRAS FONTES ──
   if (inc('outras_fontes') && otherFunding.length > 0) {
     lines.push(`## 8. Outras Fontes de Financiamento`);
     lines.push('');
@@ -899,266 +1233,286 @@ function generateMarkdown(d, sel, despLetters) {
   }
 
   lines.push(`---`);
-  lines.push(`*Extraído em ${new Date().toLocaleString('pt-BR')} · Inovatus Extrator PTR-B*`);
+  lines.push(`*Extraído em ${new Date().toLocaleString('pt-BR')} · Inovatus Extrator PTR-B / REF-RTC*`);
 
   return lines.join('\n');
 }
 
 // ═══════════════════════════════════════════════
-//  HTML DASHBOARD GENERATOR
+//  MARKDOWN — REF-RTC
 // ═══════════════════════════════════════════════
-function generateHTML(d) {
-  const { base, inst, tech, activities, team, expenses, otherFunding, summary, totalProject } = d;
-  const title = base['BASE.1 - TÍTULO'] || 'Projeto sem título';
-  const qual = base['BASE.2 - QUALIFICAÇÃO'] || '—';
-  const prazo = tech.fields['B.2 - PRAZO DE EXECUÇÃO (MESES)'] || '—';
-  const proponent = inst.proponents.length > 0 ? inst.proponents[0].razaoSocial : '—';
+const REF_SECTIONS = [
+  { key: 'identificacao',   label: 'Identificação do Projeto',       icon: '📋' },
+  { key: 'institucional',   label: 'Dados Institucionais',           icon: '🏛️' },
+  { key: 'tecnico',         label: 'Dados Técnicos',                 icon: '🔬' },
+  { key: 'atividades',      label: 'Atividades e Cronograma',        icon: '📅' },
+  { key: 'equipe',          label: 'Equipe Executora',               icon: '👥' },
+  { key: 'viagens',         label: 'Viagens',                        icon: '✈️' },
+  { key: 'internas',        label: 'Despesas Internas (Cooperativos)', icon: '🏢' },
+  { key: 'contrapartidas',  label: 'Contrapartidas dos Executores',  icon: '🤝' },
+  { key: 'outras_fontes',   label: 'Outras Fontes de Financiamento', icon: '🔗' },
+  { key: 'receita',         label: 'Receita Financeira por Executor', icon: '💹' },
+  { key: 'resumo',          label: 'Quadro Resumo das Despesas',     icon: '📊' },
+];
 
-  const tableStyle = `border-collapse:collapse;width:100%;font-size:13px;margin-bottom:24px;`;
-  const thStyle = `background:#F0EEE9;color:#6B7A8D;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.06em;padding:10px 14px;text-align:left;border-bottom:2px solid #DDD9D1;`;
-  const tdStyle = `padding:10px 14px;border-bottom:1px solid #EAE7E1;color:#1A2332;vertical-align:top;`;
-  const trAltStyle = `background:#F7F6F3;`;
+function generateMarkdownREF(d, sel, despLetters) {
+  const inc = key => !sel || sel.has(key);
+  const lines = [];
+  const { base, inst, tech, activities, team, travels, expenses, internas, contrapartidas, otherFunding, financialRevenue, summary, totalProject } = d;
 
-  function makeTable(rows, cols) {
-    if (!rows || rows.length === 0) return '<p style="color:#6B7A8D;font-style:italic;margin:0 0 24px;">Sem itens preenchidos.</p>';
-    let h = `<table style="${tableStyle}"><thead><tr>`;
-    cols.forEach(c => { h += `<th style="${thStyle}">${c}</th>`; });
-    h += '</tr></thead><tbody>';
-    rows.forEach((row, i) => {
-      h += `<tr style="${i % 2 === 1 ? trAltStyle : ''}">`;
-      cols.forEach(c => { h += `<td style="${tdStyle}">${row[c] || '—'}</td>`; });
-      h += '</tr>';
+  lines.push(`# REF-RTC — Contexto do Projeto para Análise`);
+  lines.push(`> Documento gerado automaticamente pelo Extrator PTR-B / REF-RTC (Inovatus). Contém os dados oficiais extraídos das abas de entrada do formulário REF-RTC.`);
+  lines.push('');
+
+  if (inc('identificacao')) {
+    lines.push(`## 1. Identificação do Projeto`);
+    lines.push('');
+    Object.entries(base).forEach(([k, v]) => {
+      if (k.startsWith('_')) return;
+      lines.push(`**${k}:** ${v}`);
     });
-    h += '</tbody></table>';
-    return h;
+    lines.push('');
+    if (base._annexes && base._annexes.length > 0) {
+      lines.push(`### Anexos declarados`);
+      base._annexes.forEach(a => lines.push(`- \`${a.file}\` — ${a.desc}`));
+      lines.push('');
+    }
   }
 
-  function section(id, icon, label, content) {
-    return `
-    <section id="${id}" style="margin-bottom:48px;">
-      <div style="display:flex;align-items:center;gap:10px;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid #DDD9D1;">
-        <span style="font-size:18px;">${icon}</span>
-        <h2 style="font-size:16px;font-weight:700;color:#1A2332;margin:0;">${label}</h2>
-      </div>
-      ${content}
-    </section>`;
+  if (inc('institucional')) {
+    lines.push(`## 2. Dados Institucionais`);
+    lines.push('');
+    if (inst.proponents.length > 0) {
+      lines.push(`### Empresas Petrolíferas Proponentes`);
+      lines.push('');
+      const cols = [...new Set(inst.proponents.flatMap(r => Object.keys(r)))];
+      lines.push(`| ${cols.join(' | ')} |`);
+      lines.push(`|${cols.map(() => '---').join('|')}|`);
+      inst.proponents.forEach(row => lines.push(`| ${cols.map(c => row[c] || '—').join(' | ')} |`));
+      lines.push('');
+    }
+    if (inst.executors.length > 0) {
+      lines.push(`### Instituições/Empresas Executoras`);
+      lines.push('');
+      const cols = [...new Set(inst.executors.flatMap(r => Object.keys(r)))];
+      lines.push(`| ${cols.join(' | ')} |`);
+      lines.push(`|${cols.map(() => '---').join('|')}|`);
+      inst.executors.forEach(row => lines.push(`| ${cols.map(c => row[c] || '—').join(' | ')} |`));
+      lines.push('');
+    }
   }
 
-  // Summary cards
-  let totalVal = totalProject || '—';
-  const cards = [
-    { label: 'Qualificação', val: qual },
-    { label: 'Proponente', val: proponent },
-    { label: 'Prazo', val: prazo !== '—' ? prazo + ' meses' : '—' },
-    { label: 'Valor Total', val: totalVal },
-    { label: 'Equipe', val: team.length + ' membros' },
-    { label: 'Atividades', val: activities.length + ' atividades' },
-  ];
-
-  const cardsHtml = `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:40px;">
-    ${cards.map(c => `<div style="background:#FFFFFF;border:1px solid #DDD9D1;border-radius:8px;padding:16px;">
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#6B7A8D;letter-spacing:0.08em;margin-bottom:6px;">${c.label.toUpperCase()}</div>
-      <div style="font-size:14px;font-weight:600;color:#1A2332;line-height:1.3;">${c.val}</div>
-    </div>`).join('')}
-  </div>`;
-
-  // Proponents table
-  const propContent = makeTable(inst.proponents.map(p => ({ 'Razão Social': p.razaoSocial, 'CNPJ': p.cnpj, '% Recursos': p.pct })), ['Razão Social', 'CNPJ', '% Recursos']);
-
-  // Executors
-  const execContent = inst.executors.length > 0
-    ? inst.executors.map((e, i) => `<div style="background:#FFFFFF;border:1px solid #DDD9D1;border-radius:8px;padding:16px;margin-bottom:12px;">
-      <div style="font-weight:700;color:#C47E10;margin-bottom:8px;">Executor ${i + 1}</div>
-      ${Object.entries(e).filter(([k]) => k !== 'razaoSocial').map(([k, v]) => `<div style="font-size:13px;color:#374151;"><span style="color:#6B7A8D;">${k}:</span> ${v}</div>`).join('')}
-      <div style="font-size:14px;font-weight:600;color:#1A2332;margin-bottom:8px;">${e.razaoSocial}</div>
-    </div>`).join('')
-    : '<p style="color:#6B7A8D;font-style:italic;">Nenhum executor cadastrado.</p>';
-
-  // Results
-  const resultCols = ['Descrição', 'Tipo', 'ODS'];
-  const resultsContent = makeTable(tech.results.map(r => ({ 'Descrição': r.desc, 'Tipo': r.tipo, 'ODS': r.ods })), resultCols);
-
-  // Activities
-  const actCols = ['Atividade', 'Descrição', 'Início (mês)', 'Fim (mês)'];
-  const actsContent = makeTable(activities.map(a => ({ 'Atividade': a.id, 'Descrição': a.desc, 'Início (mês)': a.inicio, 'Fim (mês)': a.fim })), actCols);
-
-  // Team
-  const teamCols = ['Nome / Identificação', 'Função', 'Formação', 'Período (meses)', 'Atividades'];
-  const teamContent = makeTable(team.map(m => ({
-    'Nome / Identificação': m.nome,
-    'Função': m.funcao,
-    'Formação': m.formacao,
-    'Período (meses)': m.meses,
-    'Atividades': m.atividades.join(', ') || '—'
-  })), teamCols);
-
-  // Expenses
-  let expContent = '';
-  if (expenses.length === 0) {
-    expContent = '<p style="color:#6B7A8D;font-style:italic;">Nenhuma categoria de despesa preenchida.</p>';
-  } else {
-    expenses.forEach(cat => {
-      const catTotal = (() => {
-        // Try to find a value column
-        const valKey = Object.keys(cat.rows[0] || {}).find(k => /valor|custo/i.test(k));
-        return null; // just display as-is
-      })();
-      expContent += `<div style="margin-bottom:32px;">
-        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#C47E10;letter-spacing:0.06em;margin-bottom:12px;padding:6px 12px;background:rgba(196,126,16,0.08);border-left:3px solid #C47E10;border-radius:0 4px 4px 0;">${cat.letter}. ${cat.category}</div>
-        ${makeTable(cat.rows, [...new Set(cat.rows.flatMap(r => Object.keys(r)))])}
-      </div>`;
-    });
+  if (inc('tecnico')) {
+    lines.push(`## 3. Dados Técnicos`);
+    lines.push('');
+    Object.entries(tech.fields).forEach(([k, v]) => lines.push(`**${k}:** ${v}`));
+    if (tech.keywords.length > 0) {
+      lines.push('');
+      lines.push(`**Palavras-chave:** ${tech.keywords.join(' · ')}`);
+    }
+    lines.push('');
+    if (tech.areaTemaSubtema.length > 0) {
+      lines.push(`### Área / Tema / Subtema`);
+      lines.push('');
+      const cols = [...new Set(tech.areaTemaSubtema.flatMap(r => Object.keys(r)))];
+      lines.push(`| ${cols.join(' | ')} |`);
+      lines.push(`|${cols.map(() => '---').join('|')}|`);
+      tech.areaTemaSubtema.forEach(row => lines.push(`| ${cols.map(c => row[c] || '—').join(' | ')} |`));
+      lines.push('');
+    }
+    if (tech.projetosRelacionados.length > 0) {
+      lines.push(`### Projetos ou Programas Relacionados`);
+      lines.push('');
+      const cols = [...new Set(tech.projetosRelacionados.flatMap(r => Object.keys(r)))];
+      lines.push(`| ${cols.join(' | ')} |`);
+      lines.push(`|${cols.map(() => '---').join('|')}|`);
+      tech.projetosRelacionados.forEach(row => lines.push(`| ${cols.map(c => row[c] || '—').join(' | ')} |`));
+      lines.push('');
+    }
+    if (tech.results.length > 0) {
+      lines.push(`### Resultados Obtidos`);
+      lines.push('');
+      const cols = [...new Set(tech.results.flatMap(r => Object.keys(r)))];
+      lines.push(`| ${cols.join(' | ')} |`);
+      lines.push(`|${cols.map(() => '---').join('|')}|`);
+      tech.results.forEach(row => lines.push(`| ${cols.map(c => row[c] || '—').join(' | ')} |`));
+      lines.push('');
+    }
   }
 
-  // Summary
-  let summaryContent = '';
-  if (summary.length > 0) {
-    summaryContent = `<table style="${tableStyle}"><thead><tr>
-      <th style="${thStyle}">Elemento de Despesa</th>
-      <th style="${thStyle};text-align:right;">Valor (R$)</th>
-    </tr></thead><tbody>
-    ${summary.map((s, i) => `<tr style="${i % 2 === 1 ? trAltStyle : ''}">
-      <td style="${tdStyle}">${s.elemento}</td>
-      <td style="${tdStyle};text-align:right;font-family:'IBM Plex Mono',monospace;">${s.valor}</td>
-    </tr>`).join('')}
-    ${totalProject ? `<tr style="background:#FFF8ED;border-top:2px solid #C47E10;">
-      <td style="${tdStyle};font-weight:700;color:#C47E10;">VALOR TOTAL DO PROJETO</td>
-      <td style="${tdStyle};text-align:right;font-family:'IBM Plex Mono',monospace;font-weight:700;color:#C47E10;">${totalProject}</td>
-    </tr>` : ''}
-    </tbody></table>`;
+  if (inc('atividades')) {
+    lines.push(`## 4. Atividades e Cronograma`);
+    lines.push('');
+    if (activities.length > 0) {
+      lines.push(`| Atividade | Detalhamento | Ano Início | Mês Início | Duração (meses) |`);
+      lines.push(`|---|---|---|---|---|`);
+      activities.forEach(a => lines.push(`| ${a.atividade} | ${a.detalhamento} | ${a.ano} | ${a.mes} | ${a.duracao} |`));
+    } else {
+      lines.push('_Nenhuma atividade preenchida._');
+    }
+    lines.push('');
   }
 
-  // Other funding
-  let wContent = otherFunding.length > 0
-    ? makeTable(otherFunding.map(f => ({ 'Fonte': f.fonte, 'Observações': f.obs, 'Valor': f.valor })), ['Fonte', 'Observações', 'Valor'])
-    : '<p style="color:#6B7A8D;font-style:italic;">Sem outras fontes de financiamento declaradas.</p>';
+  if (inc('equipe')) {
+    lines.push(`## 5. Equipe Executora`);
+    lines.push('');
+    if (team.length > 0) {
+      lines.push(`| Nome | CPF | Função | Formação | Período (meses) | Atividades |`);
+      lines.push(`|---|---|---|---|---|---|`);
+      team.forEach(m => {
+        const acts = m.atividades.length > 0 ? m.atividades.join(', ') : '—';
+        lines.push(`| ${m.nome} | ${m.cpf} | ${m.funcao} | ${m.formacao} | ${m.meses} | ${acts} |`);
+      });
+    } else {
+      lines.push('_Nenhum membro cadastrado._');
+    }
+    lines.push('');
+  }
 
-  // Nav items
-  const navItems = [
-    { id: 'sec-identificacao', label: 'Identificação' },
-    { id: 'sec-inst', label: 'Institucional' },
-    { id: 'sec-tecnico', label: 'Técnico' },
-    { id: 'sec-atividades', label: 'Atividades' },
-    { id: 'sec-equipe', label: 'Equipe' },
-    { id: 'sec-despesas', label: 'Despesas' },
-    { id: 'sec-resumo', label: 'Resumo' },
-  ];
+  if (inc('viagens')) {
+    lines.push(`## 6. Viagens`);
+    lines.push('');
+    if (travels.length > 0) {
+      const cols = [...new Set(travels.flatMap(r => Object.keys(r)))];
+      lines.push(`| ${cols.join(' | ')} |`);
+      lines.push(`|${cols.map(() => '---').join('|')}|`);
+      travels.forEach(row => lines.push(`| ${cols.map(c => row[c] || '—').join(' | ')} |`));
+    } else {
+      lines.push('_Nenhuma viagem registrada._');
+    }
+    lines.push('');
+  }
 
-  return `<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>PTR-B · ${title.substring(0, 60)}</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:#F7F6F3;color:#1A2332;font-family:'Inter',sans-serif;line-height:1.6;}
-.top-bar{background:#FFFFFF;border-bottom:1px solid #DDD9D1;padding:12px 32px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100;}
-.top-bar .mark{width:24px;height:24px;background:#C47E10;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);}
-.top-bar .app{font-family:'IBM Plex Mono',monospace;font-size:12px;color:#6B7A8D;}.top-bar .app strong{color:#1A2332;}
-.top-bar .spacer{flex:1;}
-.top-bar .tag{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#C47E10;background:rgba(196,126,16,0.10);border:1px solid rgba(196,126,16,0.25);padding:3px 8px;border-radius:3px;letter-spacing:0.06em;}
-.sidebar{position:fixed;left:0;top:53px;bottom:0;width:200px;background:#FFFFFF;border-right:1px solid #DDD9D1;padding:24px 0;overflow-y:auto;}
-.sidebar a{display:block;padding:8px 24px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6B7A8D;text-decoration:none;letter-spacing:0.04em;transition:color 0.15s,background 0.15s;}
-.sidebar a:hover{color:#C47E10;background:rgba(196,126,16,0.06);}
-.sidebar .sid-label{font-size:10px;color:#C4BEB4;letter-spacing:0.1em;text-transform:uppercase;padding:16px 24px 6px;margin-top:8px;}
-main{margin-left:200px;padding:40px 48px 80px;}
-.hero{margin-bottom:40px;padding:28px 32px;background:linear-gradient(135deg,#FFF8ED 0%,#F0EEE9 100%);border:1px solid #DDD9D1;border-radius:12px;}
-.hero-eyebrow{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#C47E10;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:10px;}
-.hero-title{font-size:20px;font-weight:700;line-height:1.4;margin-bottom:16px;color:#1A2332;}
-.obj-box{background:#FFFFFF;border:1px solid #EAE7E1;border-radius:8px;padding:16px 20px;font-size:14px;color:#374151;line-height:1.7;margin-bottom:16px;}
-.kw-list{display:flex;gap:8px;flex-wrap:wrap;}
-.kw{font-family:'IBM Plex Mono',monospace;font-size:11px;background:rgba(196,126,16,0.08);border:1px solid rgba(196,126,16,0.25);color:#C47E10;padding:3px 10px;border-radius:20px;}
-.field-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;margin-bottom:24px;}
-.field-item{background:#FFFFFF;border:1px solid #DDD9D1;border-radius:6px;padding:12px 16px;}
-.field-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#6B7A8D;letter-spacing:0.06em;margin-bottom:4px;}
-.field-val{font-size:13px;color:#1A2332;}
-@media(max-width:700px){.sidebar{display:none;}main{margin-left:0;padding:24px 20px;}}
-</style>
-</head>
-<body>
-<div class="top-bar">
-  <div class="mark"></div>
-  <div class="app"><strong>INOVATUS</strong> · Dashboard PTR-B</div>
-  <div class="spacer"></div>
-  <div class="tag">ANP R&amp;D</div>
-</div>
+  if (inc('despesas')) {
+    const visibleExp = (despLetters && despLetters.size > 0)
+      ? expenses.filter(cat => despLetters.has(cat.letter))
+      : expenses;
+    if (visibleExp.length > 0) {
+      lines.push(`## 7. Despesas por Categoria`);
+      lines.push('');
+      visibleExp.forEach(cat => {
+        lines.push(`### ${cat.letter}. ${cat.category}`);
+        lines.push('');
+        if (cat.rows.length === 0) {
+          lines.push('_Sem itens preenchidos._');
+        } else {
+          const cols = [...new Set(cat.rows.flatMap(r => Object.keys(r)))];
+          lines.push(`| ${cols.join(' | ')} |`);
+          lines.push(`|${cols.map(() => '---').join('|')}|`);
+          cat.rows.forEach(row => {
+            lines.push(`| ${cols.map(c => (row[c] || '—').replace(/\|/g, '&#124;')).join(' | ')} |`);
+          });
+        }
+        lines.push('');
+      });
+    }
+  }
 
-<nav class="sidebar">
-  <div class="sid-label">Navegação</div>
-  ${navItems.map(n => `<a href="#${n.id}">${n.label}</a>`).join('')}
-</nav>
+  if (inc('internas') && internas.length > 0) {
+    lines.push(`## 8. Despesas Internas em Projetos Cooperativos`);
+    lines.push('');
+    const cols = [...new Set(internas.flatMap(r => Object.keys(r)))];
+    lines.push(`| ${cols.join(' | ')} |`);
+    lines.push(`|${cols.map(() => '---').join('|')}|`);
+    internas.forEach(row => lines.push(`| ${cols.map(c => row[c] || '—').join(' | ')} |`));
+    lines.push('');
+  }
 
-<main>
-  <div class="hero">
-    <div class="hero-eyebrow">PTR-B · Plano de Trabalho e Recursos</div>
-    <div class="hero-title">${title}</div>
-    ${tech.fields['B.1 - OBJETIVO GERAL'] ? `<div class="obj-box">${tech.fields['B.1 - OBJETIVO GERAL']}</div>` : ''}
-    ${tech.keywords.length > 0 ? `<div class="kw-list">${tech.keywords.map(k => `<span class="kw">${k}</span>`).join('')}</div>` : ''}
-  </div>
+  if (inc('contrapartidas') && contrapartidas.length > 0) {
+    lines.push(`## 9. Contrapartidas dos Executores`);
+    lines.push('');
+    const cols = [...new Set(contrapartidas.flatMap(r => Object.keys(r)))];
+    lines.push(`| ${cols.join(' | ')} |`);
+    lines.push(`|${cols.map(() => '---').join('|')}|`);
+    contrapartidas.forEach(row => lines.push(`| ${cols.map(c => row[c] || '—').join(' | ')} |`));
+    lines.push('');
+  }
 
-  ${cardsHtml}
+  if (inc('outras_fontes') && otherFunding.length > 0) {
+    lines.push(`## 10. Outras Fontes de Financiamento`);
+    lines.push('');
+    const cols = [...new Set(otherFunding.flatMap(r => Object.keys(r)))];
+    lines.push(`| ${cols.join(' | ')} |`);
+    lines.push(`|${cols.map(() => '---').join('|')}|`);
+    otherFunding.forEach(row => lines.push(`| ${cols.map(c => row[c] || '—').join(' | ')} |`));
+    lines.push('');
+  }
 
-  ${section('sec-identificacao', '📋', 'Identificação do Projeto', `
-    <div class="field-grid">
-    ${Object.entries(base).filter(([k]) => !k.startsWith('_')).map(([k, v]) => `
-      <div class="field-item">
-        <div class="field-label">${k}</div>
-        <div class="field-val">${v}</div>
-      </div>`).join('')}
-    </div>
-    ${base._annexes && base._annexes.length > 0 ? `
-    <div style="margin-top:8px;">
-      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#6B7A8D;letter-spacing:0.06em;margin-bottom:8px;">ANEXOS DECLARADOS</div>
-      ${base._annexes.map(a => `<div style="font-size:13px;padding:6px 0;border-bottom:1px solid #EAE7E1;"><code style="color:#C47E10;">${a.file}</code> — ${a.desc}</div>`).join('')}
-    </div>` : ''}
-  `)}
+  if (inc('receita') && financialRevenue.length > 0) {
+    lines.push(`## 11. Receita Financeira por Executor`);
+    lines.push('');
+    const cols = [...new Set(financialRevenue.flatMap(r => Object.keys(r)))];
+    lines.push(`| ${cols.join(' | ')} |`);
+    lines.push(`|${cols.map(() => '---').join('|')}|`);
+    financialRevenue.forEach(row => lines.push(`| ${cols.map(c => row[c] || '—').join(' | ')} |`));
+    lines.push('');
+  }
 
-  ${section('sec-inst', '🏛️', 'Dados Institucionais', `
-    <h3 style="font-size:13px;font-weight:600;color:#6B7A8D;letter-spacing:0.06em;text-transform:uppercase;margin-bottom:12px;">Proponentes</h3>
-    ${propContent}
-    <h3 style="font-size:13px;font-weight:600;color:#6B7A8D;letter-spacing:0.06em;text-transform:uppercase;margin:24px 0 12px;">Executores</h3>
-    ${execContent}
-  `)}
+  if (inc('resumo') && summary.length > 0) {
+    lines.push(`## 12. Quadro Resumo das Despesas`);
+    lines.push('');
+    lines.push(`| Grupo | Elemento de Despesa | Valor (R$) |`);
+    lines.push(`|---|---|---|`);
+    summary.forEach(s => lines.push(`| ${s.grupo || '—'} | ${s.elemento} | ${s.valor} |`));
+    if (totalProject) {
+      lines.push(`| | **VALOR TOTAL DO PROJETO** | **${totalProject}** |`);
+    }
+    lines.push('');
+  }
 
-  ${section('sec-tecnico', '🔬', 'Dados Técnicos', `
-    <div class="field-grid">
-    ${Object.entries(tech.fields).filter(([k]) => !/B\.1|B\.3/i.test(k)).map(([k, v]) => `
-      <div class="field-item">
-        <div class="field-label">${k}</div>
-        <div class="field-val">${v}</div>
-      </div>`).join('')}
-    </div>
-    <h3 style="font-size:13px;font-weight:600;color:#6B7A8D;letter-spacing:0.06em;text-transform:uppercase;margin:24px 0 12px;">Resultados Esperados</h3>
-    ${resultsContent}
-  `)}
+  lines.push(`---`);
+  lines.push(`*Extraído em ${new Date().toLocaleString('pt-BR')} · Inovatus Extrator PTR-B / REF-RTC*`);
 
-  ${section('sec-atividades', '📅', 'Atividades e Cronograma', actsContent)}
-
-  ${section('sec-equipe', '👥', 'Equipe Executora', teamContent)}
-
-  ${section('sec-despesas', '💰', 'Despesas por Categoria', expContent)}
-
-  ${section('sec-resumo', '📊', 'Quadro Resumo das Despesas', `
-    ${summaryContent}
-    ${otherFunding.length > 0 ? `
-    <h3 style="font-size:13px;font-weight:600;color:#6B7A8D;letter-spacing:0.06em;text-transform:uppercase;margin:24px 0 12px;">Outras Fontes de Financiamento</h3>
-    ${wContent}` : ''}
-  `)}
-
-  <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#C4BEB4;margin-top:40px;padding-top:24px;border-top:1px solid #DDD9D1;">
-    Extraído em ${new Date().toLocaleString('pt-BR')} · Inovatus Extrator PTR-B
-  </div>
-</main>
-</body>
-</html>`;
+  return lines.join('\n');
 }
 
 // ═══════════════════════════════════════════════
 //  UI LOGIC
 // ═══════════════════════════════════════════════
+let docType = null; // 'ptrb' | 'ref'
+
+const TYPE_META = {
+  ptrb: {
+    label: 'PTR-B',
+    dropTitle: 'PTR-B → Documento IA-Ready',
+    dropSub: 'Carregue o PTR-B em formato .xlsx para extrair as informações do projeto em Markdown estruturado.',
+    dropHint: 'Compatível com PTR-B Versão 6 · apenas .xlsx',
+    filePrefix: 'PTRB_',
+    sections: PTRB_SECTIONS,
+  },
+  ref: {
+    label: 'REF-RTC',
+    dropTitle: 'REF-RTC → Documento IA-Ready',
+    dropSub: 'Carregue o REF-RTC em formato .xlsx para extrair as informações do projeto em Markdown estruturado.',
+    dropHint: 'Compatível com REF-RTC Versão 4 · apenas .xlsx',
+    filePrefix: 'REF_',
+    sections: REF_SECTIONS,
+  },
+};
+
+function selectType(type) {
+  docType = type;
+  const meta = TYPE_META[type];
+  $('type-current-badge').textContent = meta.label;
+  $('drop-title').textContent = meta.dropTitle;
+  $('drop-sub').textContent = meta.dropSub;
+  $('drop-hint').textContent = meta.dropHint;
+  $('type-section').style.display = 'none';
+  $('drop-section').style.display = 'block';
+  $('results').style.display = 'none';
+  clearError();
+}
+
+$('type-ptrb').addEventListener('click', () => selectType('ptrb'));
+$('type-ref').addEventListener('click', () => selectType('ref'));
+$('type-switch-link').addEventListener('click', () => {
+  $('drop-section').style.display = 'none';
+  $('results').style.display = 'none';
+  $('type-section').style.display = 'block';
+  $('file-input').value = '';
+  clearError();
+});
+
 function showStatus(msg) {
   const bar = $('status-bar');
   bar.style.display = 'flex';
@@ -1171,6 +1525,22 @@ function showError(msg) {
   box.textContent = '⚠ ' + msg;
 }
 function clearError() { $('error-box').style.display = 'none'; }
+
+function slugify(rawTitle) {
+  const stopWords = new Set(['de','da','do','das','dos','e','a','o','as','os','em','por','para','com','um','uma','ao','na','no','nas','nos','se','que','ou']);
+  return (rawTitle || 'projeto')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, '')
+    .split(/\s+/)
+    .filter(w => w.length > 2 && !stopWords.has(w))
+    .slice(0, 4)
+    .join('-');
+}
+
+function buildSummaryCard(label, val) {
+  return `<div class="summary-card"><div class="sc-label">${label}</div><div class="sc-val">${val}</div></div>`;
+}
 
 function processFile(file) {
   clearError();
@@ -1186,58 +1556,65 @@ function processFile(file) {
       const wb = XLSX.read(data, { type: 'array', cellDates: true });
 
       showStatus('Extraindo dados...');
-      const extracted = extractPTRB(wb);
+      const extracted = docType === 'ref' ? extractREF(wb) : extractPTRB(wb);
 
-      showStatus('Gerando dashboard HTML...');
-      const md = generateMarkdown(extracted, null); // null = all sections for preview
-      const html = generateHTML(extracted);
+      showStatus('Gerando Markdown...');
+      const generateFn = docType === 'ref' ? generateMarkdownREF : generateMarkdownPTRB;
+      const md = generateFn(extracted, null);
 
-      // Update UI
-      const title = extracted.base['BASE.1 - TÍTULO'] || 'Projeto sem título';
+      // Título e metadados variam de posição entre os dois formatos — busca por conteúdo do label.
+      const title = findKeyContaining(extracted.base, 'TÍTULO') || 'Projeto sem título';
+      $('pb-type-label').textContent = 'Projeto extraído · ' + TYPE_META[docType].label;
       $('pb-title').textContent = title;
 
-      const metaItems = [
-        { k: 'Qualificação', v: extracted.base['BASE.2 - QUALIFICAÇÃO'] || '—' },
-        { k: 'Prazo', v: (extracted.tech.fields['B.2 - PRAZO DE EXECUÇÃO (MESES)'] || '—') + ' meses' },
-        { k: 'Valor Total', v: extracted.totalProject || '—' },
-        { k: 'Membros', v: extracted.team.length },
-      ];
+      let metaItems = [];
+      let summaryCards = [];
+      if (docType === 'ptrb') {
+        metaItems = [
+          { k: 'Qualificação', v: findKeyContaining(extracted.base, 'QUALIFICA') || '—' },
+          { k: 'Prazo', v: (findKeyContaining(extracted.tech.fields, 'PRAZO') || '—') + (extracted.tech.fields && findKeyContaining(extracted.tech.fields, 'PRAZO') ? ' meses' : '') },
+          { k: 'Valor Total', v: extracted.totalProject || '—' },
+        ];
+        summaryCards = [
+          buildSummaryCard('Proponentes', extracted.inst.proponents.length),
+          buildSummaryCard('Executores', extracted.inst.executors.length),
+          buildSummaryCard('Atividades', extracted.activities.length),
+          buildSummaryCard('Equipe', extracted.team.length),
+          buildSummaryCard('Categorias de Despesa', extracted.expenses.length),
+          buildSummaryCard('Outras Fontes', extracted.otherFunding.length),
+        ];
+      } else {
+        metaItems = [
+          { k: 'Qualificação', v: findKeyContaining(extracted.base, 'QUALIFICA') || '—' },
+          { k: 'Finalidade', v: findKeyContaining(extracted.base, 'FINALIDADE') || '—' },
+          { k: 'Valor Total', v: extracted.totalProject || '—' },
+        ];
+        summaryCards = [
+          buildSummaryCard('Proponentes', extracted.inst.proponents.length),
+          buildSummaryCard('Executores', extracted.inst.executors.length),
+          buildSummaryCard('Atividades', extracted.activities.length),
+          buildSummaryCard('Equipe', extracted.team.length),
+          buildSummaryCard('Viagens', extracted.travels.length),
+          buildSummaryCard('Categorias de Despesa', extracted.expenses.length),
+        ];
+      }
       $('pb-meta').innerHTML = metaItems.map(m => `
         <div class="pb-meta-item">
           <span class="mk">${m.k.toUpperCase()}</span>
           <span class="mv">${m.v}</span>
         </div>`).join('');
+      $('summary-grid').innerHTML = summaryCards.join('');
 
-      // Slug from project title: first 4 meaningful words, lowercase, hyphenated
-      const rawTitle = extracted.base['BASE.1 - TÍTULO'] || 'projeto';
-      const stopWords = new Set(['de','da','do','das','dos','e','a','o','as','os','em','por','para','com','um','uma','ao','na','no','nas','nos','se','que','ou']);
-      const slug = rawTitle
-        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
-        .toLowerCase()
-        .replace(/[^a-z0-9\s]/g, '')
-        .split(/\s+/)
-        .filter(w => w.length > 2 && !stopWords.has(w))
-        .slice(0, 4)
-        .join('-');
-      const baseName = 'PTRB_' + slug;
+      const rawTitle = title === 'Projeto sem título' ? 'projeto' : title;
+      const baseName = TYPE_META[docType].filePrefix + slugify(rawTitle);
 
-      // Store extracted data and baseName globally for modal use
-      window._ptrb = { extracted, md, baseName };
+      window._extractor = { docType, extracted, md, baseName };
 
-      // HTML download
-      const htmlBlob = new Blob([html], { type: 'text/html;charset=utf-8' });
-      $('dl-html').href = URL.createObjectURL(htmlBlob);
-      $('dl-html').download = baseName + '.html';
-
-      // Preview
       $('md-preview').textContent = md;
-      const htmlFrame = $('html-frame');
-      htmlFrame.srcdoc = html;
 
       hideStatus();
       $('results').style.display = 'block';
 
-      // Register modal bindings now that elements are visible
       $('dl-md').onclick = openMdModal;
       $('modal-cancel').onclick = closeMdModal;
       $('modal-confirm').onclick = downloadFilteredMd;
@@ -1287,35 +1664,9 @@ $('reset-btn').addEventListener('click', () => {
   clearError();
 });
 
-// Tabs
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const tab = btn.dataset.tab;
-    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    $('tab-' + tab).classList.add('active');
-  });
-});
-
-
 // ═══════════════════════════════════════════════
-//  MD SECTION MODAL
+//  MD SECTION MODAL (genérico para PTR-B e REF)
 // ═══════════════════════════════════════════════
-// ═══════════════════════════════════════════════
-//  MD SECTION MODAL
-// ═══════════════════════════════════════════════
-const MD_SECTIONS = [
-  { key: 'identificacao', label: 'Identificação do Projeto',       icon: '📋' },
-  { key: 'institucional', label: 'Dados Institucionais',           icon: '🏛️' },
-  { key: 'tecnico',       label: 'Dados Técnicos',                 icon: '🔬' },
-  { key: 'atividades',    label: 'Atividades e Cronograma',        icon: '📅' },
-  { key: 'equipe',        label: 'Equipe Executora',               icon: '👥' },
-  // 'despesas' is expanded per-category dynamically
-  { key: 'resumo',        label: 'Quadro Resumo das Despesas',     icon: '📊' },
-  { key: 'outras_fontes', label: 'Outras Fontes de Financiamento', icon: '🔗' },
-];
-
 function makeCheckRow(value, icon, labelText, count, indent) {
   const wrap = document.createElement('label');
   wrap.className = 'modal-check' + (indent ? ' modal-check-sub' : '');
@@ -1327,27 +1678,38 @@ function makeCheckRow(value, icon, labelText, count, indent) {
   return wrap;
 }
 
+function sectionCount(ext, key) {
+  switch (key) {
+    case 'identificacao': return Object.keys(ext.base).filter(k => !k.startsWith('_')).length + ' campos';
+    case 'institucional': return (ext.inst.proponents.length + ext.inst.executors.length) + ' entidades';
+    case 'tecnico': return Object.keys(ext.tech.fields).length + ' campos';
+    case 'atividades': return ext.activities.length + ' atividades';
+    case 'equipe': return ext.team.length + ' membros';
+    case 'viagens': return (ext.travels || []).length + ' viagens';
+    case 'internas': return (ext.internas || []).length + ' itens';
+    case 'contrapartidas': return (ext.contrapartidas || []).length + ' itens';
+    case 'outras_fontes': return (ext.otherFunding || []).length + ' fontes';
+    case 'receita': return (ext.financialRevenue || []).length + ' registros';
+    case 'resumo': return (ext.summary || []).length + ' elementos';
+    default: return '';
+  }
+}
+
 function openMdModal() {
-  if (!window._ptrb) return;
-  const ext = window._ptrb.extracted;
+  if (!window._extractor) return;
+  const { docType, extracted: ext } = window._extractor;
+  const sections = TYPE_META[docType].sections;
   const container = $('modal-sections');
   container.innerHTML = '';
 
-  // Top sections before despesas
-  const topSections = MD_SECTIONS.slice(0, 5);
-  topSections.forEach(sec => {
-    const countMap = {
-      identificacao: Object.keys(ext.base).filter(k => !k.startsWith('_')).length + ' campos',
-      institucional: (ext.inst.proponents.length + ext.inst.executors.length) + ' entidades',
-      tecnico:       Object.keys(ext.tech.fields).length + ' campos' + (ext.tech.results.length ? ' · ' + ext.tech.results.length + ' resultados' : ''),
-      atividades:    ext.activities.length + ' atividades',
-      equipe:        ext.team.length + ' membros',
-    };
-    container.appendChild(makeCheckRow(sec.key, sec.icon, sec.label, countMap[sec.key] || '', false));
-  });
+  const equipeIdx = sections.findIndex(s => s.key === 'equipe');
+  const before = sections.slice(0, equipeIdx + 1);
+  const after = sections.slice(equipeIdx + 1);
 
-  // Despesas group header (master checkbox)
-  if (ext.expenses.length > 0) {
+  before.forEach(sec => container.appendChild(makeCheckRow(sec.key, sec.icon, sec.label, sectionCount(ext, sec.key), false)));
+
+  // Bloco de despesas (com sub-seleção por categoria) fica sempre logo após "equipe"
+  if (ext.expenses && ext.expenses.length > 0) {
     const groupHeader = document.createElement('div');
     groupHeader.className = 'modal-group-header';
 
@@ -1369,12 +1731,10 @@ function openMdModal() {
     groupHeader.appendChild(subList);
     container.appendChild(groupHeader);
 
-    // Master checkbox toggles all sub-checkboxes
     const master = masterLabel.querySelector('input');
     master.addEventListener('change', () => {
       subList.querySelectorAll('input').forEach(cb => cb.checked = master.checked);
     });
-    // If any sub unchecked, uncheck master
     subList.addEventListener('change', () => {
       const subs = [...subList.querySelectorAll('input')];
       master.checked = subs.every(s => s.checked);
@@ -1382,15 +1742,9 @@ function openMdModal() {
     });
   }
 
-  // Bottom sections after despesas
-  MD_SECTIONS.slice(5).forEach(sec => {
-    const countMap = {
-      resumo:        ext.summary.length + ' elementos',
-      outras_fontes: ext.otherFunding.length + ' fontes',
-    };
-    container.appendChild(makeCheckRow(sec.key, sec.icon, sec.label, countMap[sec.key] || '', false));
-  });
+  after.forEach(sec => container.appendChild(makeCheckRow(sec.key, sec.icon, sec.label, sectionCount(ext, sec.key), false)));
 
+  $('modal-select-all').textContent = 'Desmarcar tudo';
   $('md-modal').classList.add('open');
 }
 
@@ -1399,26 +1753,24 @@ function closeMdModal() {
 }
 
 function downloadFilteredMd() {
-  if (!window._ptrb) return;
+  if (!window._extractor) return;
+  const { docType, extracted, baseName } = window._extractor;
   const allChecked = [...document.querySelectorAll('#modal-sections input[name="sec"]:checked')].map(i => i.value);
   if (allChecked.length === 0) { alert('Selecione ao menos uma seção.'); return; }
 
-  // Build sel set: top-level keys + individual desp_X keys
   const sel = new Set(allChecked);
-  // If any desp_X selected, signal 'despesas' is partially included
   const despLetters = new Set([...sel].filter(k => k.startsWith('desp_')).map(k => k.replace('desp_', '')));
   if (despLetters.size > 0) sel.add('despesas');
 
-  const md = generateMarkdown(window._ptrb.extracted, sel, despLetters);
+  const generateFn = docType === 'ref' ? generateMarkdownREF : generateMarkdownPTRB;
+  const md = generateFn(extracted, sel, despLetters);
   const blob = new Blob([md], { type: 'text/markdown;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = window._ptrb.baseName + '.md';
+  a.download = baseName + '.md';
   a.click();
   closeMdModal();
 }
-
-// modal bindings registered after results render (see processFile)
 </script>
 </body>
 </html>
