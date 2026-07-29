@@ -693,27 +693,32 @@ function extractPTRB(wb) {
     const ws = wb.Sheets[name];
     const rows = XLSX.utils.sheet_to_json(ws, { header: 1, defval: null });
 
-    let hrow_idx = -1;
-    rows.forEach((row, i) => {
-      if (row.some(v => v && new RegExp(`^${meta.letter}\\.\\d+`).test(String(v)))) {
-        if (hrow_idx < 0) hrow_idx = i;
-      }
-    });
-    if (hrow_idx < 0) return;
+    // Algumas abas (ex. T - OUTRAS DESP.) trazem mais de um bloco de cabeçalho pro mesmo letreiro —
+    // no caso de T, três blocos: Despesa Acessória de Importação (T.1-T.8), Despesas Operacionais e
+    // Administrativas (T.9-T.10) e Ressarcimento de Custos Indiretos (T.11-T.12). Junta as colunas
+    // oficiais de TODAS as linhas de cabeçalho que baterem o padrão, não só a primeira — senão os
+    // blocos depois do primeiro somem inteiros do extrato.
+    const letterRe = new RegExp(`^${meta.letter}\\.\\d+`);
+    const hrowIdxs = [];
+    rows.forEach((row, i) => { if (row.some(v => v && letterRe.test(String(v)))) hrowIdxs.push(i); });
+    if (hrowIdxs.length === 0) return;
+    const hrow_idx = hrowIdxs[0];
 
-    const hrow = rows[hrow_idx];
     const officialCols = [];
-    hrow.forEach((v, ci) => {
-      if (!v || !new RegExp(`^${meta.letter}\\.\\d+`).test(String(v))) return;
-      officialCols.push({ ci, label: cleanLabel(String(v)) });
+    let itemCol = -1;
+    hrowIdxs.forEach(hi => {
+      const hr = rows[hi];
+      hr.forEach((v, ci) => {
+        if (!v || !letterRe.test(String(v))) return;
+        officialCols.push({ ci, label: cleanLabel(String(v)) });
+      });
+      if (itemCol < 0) itemCol = hr.findIndex(v => v && String(v).toUpperCase() === 'ITEM');
+      // Coluna de total já calculado pela planilha (soma/produto), sem prefixo X.N — ver findComputedTotalCol.
+      const colsThisBlock = [];
+      hr.forEach((v, ci) => { if (v && letterRe.test(String(v))) colsThisBlock.push({ ci, label: cleanLabel(String(v)) }); });
+      const totalCol = findComputedTotalCol(hr, colsThisBlock);
+      if (totalCol) officialCols.push(totalCol);
     });
-    const itemCol = hrow.findIndex(v => v && String(v).toUpperCase() === 'ITEM');
-    // Algumas abas de despesa têm uma coluna de total já calculado pela planilha (soma/produto de
-    // outros campos) logo depois do bloco de colunas oficiais X.N, mas sem o prefixo X.N — por isso
-    // o regex acima não a pega. Ex.: "VALOR TOTAL (R$)" depois de "G.9 - Valor Unitário"/"G.10 - Quantidade".
-    // Captura essa coluna à parte pra não depender de recalcular unitário × quantidade a jusante.
-    const totalCol = findComputedTotalCol(hrow, officialCols);
-    if (totalCol) officialCols.push(totalCol);
     // A coluna "[calculado]" costuma ser fórmula ao longo de todo o template (avalia pra 0 em linhas
     // em branco) — não pode contar como "linha tem dado real", senão a leitura desce até o fim da aba.
     const checkCols = officialCols.filter(c => !c.label.endsWith('[calculado]'));
@@ -1031,18 +1036,30 @@ function extractREF(wb) {
   data.travels = travels;
 
   // ── ABAS DE DESPESA E BLOCOS SIMILARES (padrão X.N genérico) ──
+  // Algumas abas (ex. T - OUTRAS DESP.) trazem MAIS DE UM bloco de cabeçalho/tabela pro mesmo letreiro
+  // — no caso de T, três blocos lado a lado ou empilhados: Despesa Acessória de Importação (T.1-T.8),
+  // Despesas Operacionais e Administrativas (T.9-T.10) e Ressarcimento de Custos Indiretos (T.11-T.12).
+  // `refFindHeaderRow` só acha o primeiro; por isso aqui varremos TODAS as linhas que batem o padrão
+  // como possíveis cabeçalhos, e cada uma vira um bloco lido à parte (limitado pelo próximo cabeçalho).
   function extractGenericSheet(sheetName, letterPattern) {
     const rows = sheetRows(wb, sheetName);
     if (!rows) return [];
-    const h = refFindHeaderRow(rows, letterPattern);
-    if (h < 0) return [];
-    const cols = refColIndices(rows[h], letterPattern);
-    // Coluna de total já calculado pela planilha (soma/produto), sem prefixo X.N — ver findComputedTotalCol.
-    const totalCol = findComputedTotalCol(rows[h], cols);
-    if (totalCol) cols.push(totalCol);
-    const itemCol = (rows[h] || []).findIndex(v => v && String(v).toUpperCase() === 'ITEM');
-    const allCols = itemCol >= 0 ? [{ ci: itemCol, label: 'Item' }, ...cols] : cols;
-    return refReadTable(rows, h, allCols, { maxGap: 2 });
+    const headerIdxs = [];
+    rows.forEach((row, i) => { if ((row || []).some(v => v && letterPattern.test(String(v)))) headerIdxs.push(i); });
+    if (headerIdxs.length === 0) return [];
+
+    let out = [];
+    headerIdxs.forEach((h, bi) => {
+      const cols = refColIndices(rows[h], letterPattern);
+      // Coluna de total já calculado pela planilha (soma/produto), sem prefixo X.N — ver findComputedTotalCol.
+      const totalCol = findComputedTotalCol(rows[h], cols);
+      if (totalCol) cols.push(totalCol);
+      const itemCol = (rows[h] || []).findIndex(v => v && String(v).toUpperCase() === 'ITEM');
+      const allCols = itemCol >= 0 ? [{ ci: itemCol, label: 'Item' }, ...cols] : cols;
+      const endRow = bi + 1 < headerIdxs.length ? headerIdxs[bi + 1] : rows.length;
+      out = out.concat(refReadTable(rows, h, allCols, { maxGap: 2, endRow }));
+    });
+    return out;
   }
 
   const expSheets = [
