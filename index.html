@@ -423,7 +423,7 @@ function cleanLabel(raw) {
   return String(raw)
     .replace(/\(limite de \d+ caracteres\)/gi, '')
     .replace(/\(somente números\)/gi, '')
-    .replace(/\n/g, ' ')
+    .replace(/\r\n|\r|\n/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
@@ -439,10 +439,35 @@ function fmtVal(v) {
   if (v == null || v === '') return '—';
   if (typeof v === 'boolean') return v ? 'Sim' : 'Não';
   if (v instanceof Date) return v.toLocaleDateString('pt-BR');
-  return String(v).trim();
+  // Quebras de linha dentro de uma célula quebram o alinhamento de colunas de uma tabela
+  // Markdown (a linha "vaza" pra fora da linha da tabela) — normaliza pra espaço único.
+  return String(v).replace(/\r\n|\r|\n/g, ' ').replace(/\s+/g, ' ').trim();
 }
 
 function isEmptyCell(v) { return v == null || String(v).trim() === ''; }
+
+// Procura, logo após o último índice de coluna oficial (X.N) de uma linha de cabeçalho, uma coluna de
+// total já calculado pela planilha ANP (soma ou produto de outros campos oficiais) que não tem o
+// prefixo X.N — ex. "VALOR TOTAL (R$)" depois de "G.9 - Valor Unitário (R$)"/"G.10 - Quantidade".
+// Sem isso, o extrator só pega os componentes (unitário, quantidade, remuneração, encargos...) e
+// quem consome o Markdown precisa recalcular o total lendo texto formatado — frágil e desnecessário
+// já que a planilha já fez essa conta.
+function findComputedTotalCol(hrow, officialCols) {
+  if (officialCols.length === 0) return null;
+  const maxCi = Math.max(...officialCols.map(c => c.ci));
+  for (let ci = maxCi + 1; ci <= maxCi + 3; ci++) {
+    const v = hrow[ci];
+    if (!v) continue;
+    const s = cleanLabel(String(v));
+    if (/^(VALOR|DESPESA)\b/i.test(s) && !/^[A-Z]\d*\.\d+/i.test(String(v))) {
+      return { ci, label: s + ' [calculado]' };
+    }
+    // primeira coluna não-vazia depois do bloco oficial que não bate o padrão acima:
+    // provavelmente já é outra seção (ex. "EXECUTOR" da área de verificação) — para a busca.
+    break;
+  }
+  return null;
+}
 
 function findKeyContaining(obj, substr) {
   const key = Object.keys(obj || {}).find(k => k.toUpperCase().includes(substr.toUpperCase()));
@@ -683,14 +708,23 @@ function extractPTRB(wb) {
       officialCols.push({ ci, label: cleanLabel(String(v)) });
     });
     const itemCol = hrow.findIndex(v => v && String(v).toUpperCase() === 'ITEM');
+    // Algumas abas de despesa têm uma coluna de total já calculado pela planilha (soma/produto de
+    // outros campos) logo depois do bloco de colunas oficiais X.N, mas sem o prefixo X.N — por isso
+    // o regex acima não a pega. Ex.: "VALOR TOTAL (R$)" depois de "G.9 - Valor Unitário"/"G.10 - Quantidade".
+    // Captura essa coluna à parte pra não depender de recalcular unitário × quantidade a jusante.
+    const totalCol = findComputedTotalCol(hrow, officialCols);
+    if (totalCol) officialCols.push(totalCol);
+    // A coluna "[calculado]" costuma ser fórmula ao longo de todo o template (avalia pra 0 em linhas
+    // em branco) — não pode contar como "linha tem dado real", senão a leitura desce até o fim da aba.
+    const checkCols = officialCols.filter(c => !c.label.endsWith('[calculado]'));
 
     const catRows = [];
     for (let r = hrow_idx + 1; r < rows.length; r++) {
       const row = rows[r];
-      const hasData = officialCols.some(({ ci }) => row[ci] != null && row[ci] !== '');
+      const hasData = checkCols.some(({ ci }) => row[ci] != null && row[ci] !== '');
       const itemVal = itemCol >= 0 ? row[itemCol] : null;
       if (!hasData && !itemVal) continue;
-      const allEmpty = officialCols.every(({ ci }) => row[ci] == null || row[ci] === '');
+      const allEmpty = checkCols.every(({ ci }) => row[ci] == null || row[ci] === '');
       if (allEmpty) continue;
 
       const entry = {};
@@ -790,7 +824,10 @@ function refReadTable(rows, headerRowIdx, cols, opts) {
   const maxGap = opts.maxGap == null ? 2 : opts.maxGap;
   const endRow = opts.endRow == null ? rows.length : opts.endRow;
   // Colunas "Item" são numeração pré-preenchida no template — não contam como dado real.
-  const significantCols = cols.filter(c => c.label.toLowerCase() !== 'item');
+  // Colunas "[calculado]" (ver findComputedTotalCol) costumam ser fórmula em toda a extensão do
+  // template (avaliam pra 0 em vez de vazio nas linhas em branco) — se contassem como dado real,
+  // o gap nunca estoura e a leitura desce até o fim da planilha (milhares de linhas fantasma).
+  const significantCols = cols.filter(c => c.label.toLowerCase() !== 'item' && !c.label.endsWith('[calculado]'));
   const checkCols = significantCols.length > 0 ? significantCols : cols;
   const out = [];
   let gap = 0;
@@ -1000,6 +1037,9 @@ function extractREF(wb) {
     const h = refFindHeaderRow(rows, letterPattern);
     if (h < 0) return [];
     const cols = refColIndices(rows[h], letterPattern);
+    // Coluna de total já calculado pela planilha (soma/produto), sem prefixo X.N — ver findComputedTotalCol.
+    const totalCol = findComputedTotalCol(rows[h], cols);
+    if (totalCol) cols.push(totalCol);
     const itemCol = (rows[h] || []).findIndex(v => v && String(v).toUpperCase() === 'ITEM');
     const allCols = itemCol >= 0 ? [{ ci: itemCol, label: 'Item' }, ...cols] : cols;
     return refReadTable(rows, h, allCols, { maxGap: 2 });
