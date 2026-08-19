@@ -1024,13 +1024,19 @@ function extractREF(wb) {
   data.team = team;
 
   // ── E - VIAGENS ──
+  // A coluna `Item` (numeração da viagem, ex. "VIAGEM 1") fica à esquerda de E.1, fora do padrão
+  // E.N — sem captura própria, some do Markdown e a IA que consome o arquivo tem que inferir qual
+  // linha é qual viagem só pela ordem (achado 19/08/2026, ver CLAUDE.md). Mesmo padrão de captura
+  // de `itemCol` já usado em `extractGenericSheet` pras abas de despesa (F-Y).
   const travels = [];
   const eRows = sheetRows(wb, 'E - DADOS VIAGENS');
   if (eRows) {
     const h = refFindHeaderRow(eRows, /^E\.1\s*-/i);
     if (h >= 0) {
       const cols = refColIndices(eRows[h], /^E\.[1-7]\b/i);
-      travels.push(...refReadTable(eRows, h, cols, { maxGap: 2 }));
+      const itemCol = (eRows[h] || []).findIndex(v => v && String(v).toUpperCase() === 'ITEM');
+      const allCols = itemCol >= 0 ? [{ ci: itemCol, label: 'Item' }, ...cols] : cols;
+      travels.push(...refReadTable(eRows, h, allCols, { maxGap: 2 }));
     }
   }
   data.travels = travels;
